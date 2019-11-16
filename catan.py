@@ -1,15 +1,14 @@
-# from __future__ import division
-from pylab import *
-from skimage import data, io, filters, exposure, measure, feature
-from skimage import img_as_float, img_as_ubyte
-import skimage.morphology as mp
-from skimage import util
-from skimage.color import rgb2hsv, hsv2rgb
-from matplotlib import pylab as plt
-import numpy as np
 import os
+import cv2
+import numpy as np
+import random as rng
 
-io.use_plugin('matplotlib')
+# INFO: Zdjęcia można przybliżać scrollem, dowolny klawisz przewija zdjęcie na kolejne
+
+# Elements of those lists will be displayed in windows
+processed_images = []
+tmp_images = []
+tmp_images2 = []
 
 
 def loadImages():
@@ -18,74 +17,100 @@ def loadImages():
     for directory in os.listdir(main_dir):
         for file_name in os.listdir(main_dir + '/' + directory):
             file_path = main_dir + '/' + directory + '/' + file_name
-            images.append(imread(file_path))
+            images.append(cv2.imread(file_path))
+    print('All images loaded')
     return images
 
 
-def workOnImage(image):
-    imgSize = image.shape[:2]
-    data = img_as_float(image, imgSize)
-    # ///////////////
-
-    contour = removeBackground(data, imgSize)
-    showImageWithContour(image, contour)
+def drawContourOnImage(image, contour):
+    cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
+    return image
 
 
-def showImage(img):
-    io.imshow(img)
-    plt.axis('off')
-    plt.show()
+def findBackground(image):
+    min = np.percentile(image, 5)
+    max = np.percentile(image, 95)
+    # TODO: Adjust histogram using percentiles
 
+    h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
+    blue = [0.50, 0.65]
+    # Finding two thresholds and then finding the common part
+    _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
+    background = cv2.bitwise_and(threshold, threshold2)
+    background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
 
-def showImageWithContour(img, contour):
-    fig, ax = plt.subplots()
-    ax.imshow(img)
-    plt.axis('off')
-    ax.step(contour.T[1], contour.T[0], linewidth=2, c='red')
-    plt.show()
-
-
-# https://plot.ly/python/v3/polygon-area/
-def polygonArea(corners):
-    n = len(corners)
-    area = 0.0
-    for i in range(n):
-        j = (i + 1) % n
-        area += corners[i][0] * corners[j][1]
-        area -= corners[j][0] * corners[i][1]
-    area = abs(area) / 2.0
-    return area
-
-
-def removeBackground(data, imgSize):
-    min = np.percentile(data, 5)
-    max = np.percentile(data, 95)
-    data = exposure.rescale_intensity(data, in_range=(min, max))
-
-    # showImage(data)
-    dataHSV = rgb2hsv(data)
-    blue = [0.50, 0.65]  # zakres wartosci H dla niebieskiego w HSV
-    maska = np.zeros(imgSize, dtype=np.float)
-    for row, line in enumerate(dataHSV):
-        for col, pixel in enumerate(line):
-            if blue[0] < pixel[0] < blue[1]:
-                maska[row][col] = 1
-
-    maska = mp.dilation(maska)
-    showImage(maska)
-    contours = measure.find_contours(maska, 0.3)
-
-    # contour = sorted(contours, key=lambda x: polygonArea(x))[-1]
-    biggestContourIndex = 0
-    biggestContourSize = 0
+    contours, hierarchy = cv2.findContours(background, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    # Find two biggest contours
+    max_area_index = 0
+    second_max_area_index = 0
+    max_area = 0
+    second_max_area = 0
     for i, cont in enumerate(contours):
-        currentContourSize = polygonArea(cont)
-        if currentContourSize > biggestContourSize:
-            biggestContourIndex = i
-            biggestContourSize = currentContourSize
-    return contours[biggestContourIndex]
+        tmp_area = cv2.contourArea(cont)
+        if tmp_area > max_area:
+            second_max_area = max_area
+            second_max_area_index = max_area_index
+            max_area = tmp_area
+            max_area_index = i
+        elif tmp_area > second_max_area:
+            second_max_area = tmp_area
+            second_max_area_index = i
+
+    # Największym konturem jest prawie zawsze cała plansza.
+    # Drugim co do wielkości jest plansza z wyciętą wodą, która by nas bardziej interesowała.
+    # Jednak na niektórych zdjęciach oba te kontury się zlewają w jeden, więc nie możemy zawsze brać tego mniejszego.
+    # If the second biggest contour is inside the biggest one take the inside one
+    if hierarchy[0][second_max_area_index][3] == max_area_index:
+        best_contour = contours[second_max_area_index]
+    else:
+        best_contour = contours[max_area_index]
+    return best_contour
 
 
-images = loadImages()
-for img in images:
-    workOnImage(img)
+def cutBackground(image, mask):
+    image = cv2.bitwise_and(image, image, mask=mask)
+    return image
+
+
+def workOnImage(image):
+    contour = findBackground(image)
+    image_size = image.shape[:2]
+    mask = np.zeros(image_size, dtype=np.uint8)
+    contour_hull = cv2.convexHull(contour, False)
+    # If the contour is not solid draw the covex hull instead
+    if cv2.contourArea(contour) > 0.5 * cv2.contourArea(contour_hull):
+        mask = drawContourOnImage(mask, contour)
+    else:
+        mask = drawContourOnImage(mask, contour_hull)
+    tmp_images2.append(mask)
+    image = cutBackground(image, mask)
+    return image
+
+
+def main():
+    images = loadImages()
+    for image in images:
+        image = workOnImage(image)
+        processed_images.append(image)
+    print('All images processed')
+
+    # Display images
+    for i in range(max(len(processed_images), len(tmp_images), len(tmp_images2))):
+        # Create window
+        cv2.namedWindow('catan', cv2.WINDOW_GUI_NORMAL)
+        cv2.namedWindow('catan2', cv2.WINDOW_GUI_NORMAL)
+        cv2.namedWindow('catan3', cv2.WINDOW_GUI_NORMAL)
+        # cv2.resizeWindow('catan', 1920, 1080)
+        if i < len(processed_images):
+            cv2.imshow('catan', processed_images[i])
+        if i < len(tmp_images):
+            cv2.imshow('catan2', tmp_images[i])
+        if i < len(tmp_images2):
+            cv2.imshow('catan3', tmp_images2[i])
+        cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()
