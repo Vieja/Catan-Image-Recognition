@@ -11,7 +11,6 @@ tmp_images = []
 tmp_images2 = []
 tmp_images3 = []
 
-
 def loadImages():
     images = []
     main_dir = 'catan-photos'
@@ -67,7 +66,6 @@ def findBackground(image):
     else:
         best_contour = contours[max_area_index]
     return best_contour
-
 
 def cutBackground(image, mask):
     image = cv2.bitwise_and(image, image, mask=mask)
@@ -134,42 +132,46 @@ def removeFrame(image):
     tmp_images2.append(resized)
     return image
 
-def findSheep(image):
-    h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    h_new = [0.15, 0.28]
-    s_new = [0.6, 1]
-    v_new = [0.6, 1]
-    #image[:, 2, :] = 255
+def findTerrain(rawData, data, color, h_new, s_new, v_new, ktory):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    #data[:, 2, :] = 255
     # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 250, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 250, cv2.THRESH_BINARY_INV)
+    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
     background1 = cv2.bitwise_and(threshold, threshold2)
     # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, v_new[0], 100, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, v_new[1] * 100, 250, cv2.THRESH_BINARY_INV)
+    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
     background2 = cv2.bitwise_and(threshold, threshold2)
     # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, v_new[0], 100, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, v_new[1] * 100, 250, cv2.THRESH_BINARY_INV)
+    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
     background3 = cv2.bitwise_and(threshold, threshold2)
     background = cv2.bitwise_and(background1,background2,background3)
-    #background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
-    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8))
+
+    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
+    #background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
     sort.reverse()
+    mask = np.zeros(data.shape, np.uint8)
     i = 0
     for c in range(len(sort)):
-        if cv2.contourArea(sort[c]) > 1000:
-            i += 1
-            cv2.drawContours(image, sort, c,  (0,255,0), cv2.FILLED)
-            if i == 4:
-                break
-    tmp_images2.append(background)
-    return background
+        i += 1
+        cv2.drawContours(mask, sort, c,  (255,255,255), cv2.FILLED)
+        cv2.drawContours(rawData, sort, c, color, cv2.FILLED)
+        if i == 4:
+            break
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
+    if ktory == 1:
+        #tmp_images2.append(background)
+        tmp_images3.append(mask)
+    mask = cv2.bitwise_not(mask)
+    images = cv2.bitwise_and(data, mask)
+    return images
 
-def workOnImage(image):
-    tmp_images.append(image)
+def workOnImage(rawData):
+    image = rawData.copy()
     contour = findBackground(image)
     image_size = image.shape[:2]
     mask = np.zeros(image_size, dtype=np.uint8)
@@ -180,16 +182,21 @@ def workOnImage(image):
     else:
         mask = drawContourOnImage(mask, contour_hull)
     image = cutBackground(image, mask)
-    findSheep(image)
-    #image = findFields(image)
-    return image
+    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 1)  # owce
+    kernel = np.ones((30, 30), np.float32) / 900
+    image = cv2.filter2D(image, -1, kernel)
+    now = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 2)  # las
+    tmp_images2.append(now)
+    return rawData
 
 
 def main():
     images = loadImages()
     for image in images:
-        image = workOnImage(image)
         processed_images.append(image)
+        data = image.copy()
+        imageDone = workOnImage(data)
+        tmp_images.append(imageDone)
     print('All images processed')
 
     # Display images
@@ -207,7 +214,7 @@ def main():
         if i < len(tmp_images2):
             cv2.imshow('catan3', tmp_images2[i])
         if i < len(tmp_images3):
-            cv2.imshow('catan4', tmp_images2[i])
+            cv2.imshow('catan4', tmp_images3[i])
         cv2.waitKey(0)
     cv2.destroyAllWindows()
 
