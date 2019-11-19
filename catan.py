@@ -129,12 +129,13 @@ def removeFrame(image):
     cropped = image[cropp : h-cropp, cropp : w-cropp]
     # perform the actual resizing of the image and show it
     resized = cv2.resize(cropped, dim, interpolation=cv2.INTER_AREA)
-    tmp_images2.append(resized)
+    #tmp_images2.append(resized)
     return image
 
-def findTerrain(rawData, data, color, h_new, s_new, v_new, ktory):
+def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    #data[:, 2, :] = 255
+    #if (ktory == 3):
+        #data[:, 2, :] = 255
     # Finding two thresholds and then finding the common part
     _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
@@ -156,18 +157,21 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ktory):
     sort.reverse()
     mask = np.zeros(data.shape, np.uint8)
     i = 0
+    hull_list = []
     for c in range(len(sort)):
         i += 1
-        cv2.drawContours(mask, sort, c,  (255,255,255), cv2.FILLED)
-        cv2.drawContours(rawData, sort, c, color, cv2.FILLED)
-        if i == 4:
+        hull = cv2.convexHull(sort[c])
+        hull_list.append(hull)
+        if i == ile:
             break
+    cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
+    cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
     mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
-    if ktory == 1:
-        #tmp_images2.append(background)
-        tmp_images3.append(mask)
     mask = cv2.bitwise_not(mask)
     images = cv2.bitwise_and(data, mask)
+    if ktory == 3:
+        tmp_images2.append(background)
+        tmp_images3.append(mask)
     return images
 
 def workOnImage(rawData):
@@ -182,11 +186,16 @@ def workOnImage(rawData):
     else:
         mask = drawContourOnImage(mask, contour_hull)
     image = cutBackground(image, mask)
-    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 1)  # owce
     kernel = np.ones((30, 30), np.float32) / 900
+    #image = cv2.bilateralFilter(image, 50, 250, 250)
     image = cv2.filter2D(image, -1, kernel)
-    now = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 2)  # las
-    tmp_images2.append(now)
+    #image = cv2.blur(image, (40,40))
+    #image = cv2.medianBlur(image, 15)
+
+    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 4, 1)  # owce
+    image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
+    #image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
+    image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
     return rawData
 
 
