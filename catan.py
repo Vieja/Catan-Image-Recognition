@@ -78,10 +78,8 @@ def cutBackground(image, mask):
     return image
 
 
-def findFields(image):
+def findFields(image, red_mask, blue_mask):
     hex_shape = np.load('hex.npy')
-    blue_mask = removeBluePieces(image)
-    red_mask = removeRedPieces(image)
     # a = findCircles(image)
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -199,8 +197,7 @@ def findCircles(data):
 #     # tmp_images3.append(mask_all)
 #     return mask_all
 
-
-def removeRedPieces(data):
+def findRedPieces(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
     # if (ktory == 3):
     # data[:, 2, :] = 255
@@ -215,6 +212,11 @@ def removeRedPieces(data):
     background2 = thresholdInRange(s, s_new)
     background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
+    return background
+
+
+def removeRedPieces(data):
+    background = findRedPieces(data)
     # tmp_images2.append(background)
     # jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((20, 20), np.uint8))
@@ -239,7 +241,7 @@ def removeRedPieces(data):
     return mask
 
 
-def removeBluePieces(data):
+def findBluePieces(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
     # if (ktory == 3):
     # data[:, 2, :] = 255
@@ -252,7 +254,11 @@ def removeBluePieces(data):
     background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
     # tmp_images2.append(background)
-    # jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
+    return background
+
+
+def removeBluePieces(data):
+    background = findBluePieces(data)
     # background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((20, 20), np.uint8))
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
     # tmp_images3.append(background)
@@ -275,6 +281,26 @@ def removeBluePieces(data):
     return mask
 
 
+def identifyPieces(image, pieces_mask, color):
+    if color == 'red':
+        pieces_colors = [(0, 0, 255), (255, 0, 255)]
+    else:
+        pieces_colors = [(255, 0, 0), (255, 255, 0)]
+    contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    for i, cont in enumerate(contours):
+        hull = cv2.convexHull(cont)
+        if 500 < cv2.contourArea(hull) < 10000:
+            # red_mask = cv2.drawContours(red_mask, [hull], -1, 255, cv2.FILLED)
+            ellipse = cv2.fitEllipse(hull)
+            (x, y), (Ma, ma), angle = ellipse
+            if Ma / ma > 0.5:  # Jeśli osie elipsy są prawie równe mamy okrąg
+                color = pieces_colors[0]
+            else:  # Obiekt jest podłużny
+                color = pieces_colors[1]
+            cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
+    return image
+
+
 # def removeFrame(image):
 #     h, w = image.shape[:2]
 #     if h > w:
@@ -293,9 +319,9 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
     # if (ktory == 3):
     # data[:, 2, :] = 255
-    background1 = thresholdBetweenValues(h, h_new[0]*180, h_new[1]*180)
-    background2 = thresholdBetweenValues(s, s_new[0]*255, s_new[1]*255)
-    background3 = thresholdBetweenValues(v. v_new[0]*255, v_new[1]*255)
+    background1 = thresholdBetweenValues(h, h_new[0] * 180, h_new[1] * 180)
+    background2 = thresholdBetweenValues(s, s_new[0] * 255, s_new[1] * 255)
+    background3 = thresholdBetweenValues(v.v_new[0] * 255, v_new[1] * 255)
     background = cv2.bitwise_and(background1, background2, background3)
 
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
@@ -345,8 +371,15 @@ def workOnImage(rawData):
     # image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
     # image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
     # image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
-    rawData = findFields(image)
-
+    blue_mask = removeBluePieces(image)
+    red_mask = removeRedPieces(image)
+    rawData = findFields(image, red_mask, blue_mask)
+    # Z jednej strony jeśli tutaj ponownie będziemy szukać pionków, to unikniemy mylenia gliny z czerwonym pionkiem
+    # Z drugiej, jeśli któreś pole ma zbyt duży kontur i wycięło pionek, to stracimy ten pionek
+    blue_pieces = findBluePieces(image)
+    red_pieces = findRedPieces(image)
+    rawData = identifyPieces(rawData, blue_pieces, 'blue')
+    rawData = identifyPieces(rawData, red_pieces, 'red')
     return rawData
 
 
