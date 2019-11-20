@@ -23,22 +23,26 @@ def loadImages():
     return images
 
 
+def thresholdBetweenValues(image, thresh_min, thresh_max):
+    # Finding two thresholds and then finding the common part
+    _, threshold = cv2.threshold(image, thresh_min, 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(image, thresh_max, 255, cv2.THRESH_BINARY_INV)
+    return cv2.bitwise_and(threshold, threshold2)
+
+
+def thresholdInRange(image, threshold_range):
+    return thresholdBetweenValues(image, threshold_range[0], threshold_range[1])
+
+
 def drawContourOnImage(image, contour):
     cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
     return image
 
 
 def findBackground(image):
-    min = np.percentile(image, 5)
-    max = np.percentile(image, 95)
-    # TODO: Adjust histogram using percentiles
-
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    blue = [0.50, 0.65]
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
-    background = cv2.bitwise_and(threshold, threshold2)
+    blue = [0.50 * 180, 0.65 * 180]
+    background = thresholdInRange(h, blue)
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
 
     contours, hierarchy = cv2.findContours(background, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
@@ -85,9 +89,7 @@ def findFields(image):
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     image_gray = clahe.apply(image_gray)
     thresh = [170, 255]
-    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
-    mask = cv2.bitwise_and(threshold, threshold2)
+    mask = thresholdInRange(image_gray, thresh)
     # tmp_images2.append(mask)
     # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
     mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
@@ -126,9 +128,7 @@ def findFields(image):
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     thresh = [100, 120]
     image_gray = cv2.equalizeHist(s)
-    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
-    mask = cv2.bitwise_and(threshold, threshold2)
+    mask = thresholdInRange(image_gray, thresh)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
     contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Take only contours that are ok
@@ -148,23 +148,14 @@ def findFields(image):
 
 def findCircles(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    h_new = [0.1, 0.12]
-    s_new = [0.4, 0.5]
-    v_new = [0.7, 1]
+    h_new = [0.1 * 180, 0.12 * 180]
+    s_new = [0.4 * 255, 0.5 * 255]
+    v_new = [0.7 * 255, 1 * 255]
     # if (ktory == 3):
     # data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
 
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
@@ -214,20 +205,15 @@ def removeRedPieces(data):
     # if (ktory == 3):
     # data[:, 2, :] = 255
     # Finding two thresholds and then finding the common part
-    h_new = [0.07, 0.93]
-    s_new = [0.5, 1]
-    v_new = [0, 1]
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY_INV)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY)
+    h_new = [0.07 * 180, 0.93 * 180]
+    s_new = [0.5 * 255, 1 * 255]
+    v_new = [0 * 255, 1 * 255]
+
+    _, threshold = cv2.threshold(h, h_new[0], 180, cv2.THRESH_BINARY_INV)
+    _, threshold2 = cv2.threshold(h, h_new[1], 180, cv2.THRESH_BINARY)
     background1 = cv2.bitwise_xor(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
     # tmp_images2.append(background)
     # jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
@@ -258,20 +244,12 @@ def removeBluePieces(data):
     # if (ktory == 3):
     # data[:, 2, :] = 255
     # Finding two thresholds and then finding the common part
-    h_new = [0.58, 0.69]
-    s_new = [0.5, 1]
-    v_new = [0, 0.6]
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
+    h_new = [0.58 * 180, 0.69 * 180]
+    s_new = [0.5 * 255, 1 * 255]
+    v_new = [0 * 255, 0.6 * 255]
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
     # tmp_images2.append(background)
     # jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
@@ -315,18 +293,9 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
     # if (ktory == 3):
     # data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
+    background1 = thresholdBetweenValues(h, h_new[0]*180, h_new[1]*180)
+    background2 = thresholdBetweenValues(s, s_new[0]*255, s_new[1]*255)
+    background3 = thresholdBetweenValues(v. v_new[0]*255, v_new[1]*255)
     background = cv2.bitwise_and(background1, background2, background3)
 
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
@@ -384,7 +353,7 @@ def workOnImage(rawData):
 def main():
     images = loadImages()
     for i, image in enumerate(images):
-        print("Processing image {}/{}".format(i+1, len(images)))
+        print("Processing image {}/{}".format(i + 1, len(images)))
         processed_images.append(image)
         data = image.copy()
         imageDone = workOnImage(data)
