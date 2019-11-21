@@ -11,6 +11,7 @@ tmp_images = []
 tmp_images2 = []
 tmp_images3 = []
 
+
 def loadImages():
     images = []
     main_dir = 'catan-photos'
@@ -22,22 +23,26 @@ def loadImages():
     return images
 
 
+def thresholdBetweenValues(image, thresh_min, thresh_max):
+    # Finding two thresholds and then finding the common part
+    _, threshold = cv2.threshold(image, thresh_min, 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(image, thresh_max, 255, cv2.THRESH_BINARY_INV)
+    return cv2.bitwise_and(threshold, threshold2)
+
+
+def thresholdInRange(image, threshold_range):
+    return thresholdBetweenValues(image, threshold_range[0], threshold_range[1])
+
+
 def drawContourOnImage(image, contour):
     cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
     return image
 
 
 def findBackground(image):
-    min = np.percentile(image, 5)
-    max = np.percentile(image, 95)
-    # TODO: Adjust histogram using percentiles
-
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    blue = [0.50, 0.65]
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
-    background = cv2.bitwise_and(threshold, threshold2)
+    blue = [0.50 * 180, 0.65 * 180]
+    background = thresholdInRange(h, blue)
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
 
     contours, hierarchy = cv2.findContours(background, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
@@ -67,112 +72,156 @@ def findBackground(image):
         best_contour = contours[max_area_index]
     return best_contour
 
+
 def cutBackground(image, mask):
     image = cv2.bitwise_and(image, image, mask=mask)
     return image
 
-def findFields(image):
-    # Pionki zakrywają linie między polami, więc pomyślałem, żeby spróbować znaleźć pionki
-    # i niejako w ich miejscu dorysować linie
-    blue_mask = removeBluePieces(image)
-    red_mask = removeRedPieces(image)
-    orange_mask = removeOrangePieces(image)
 
-    #findCircles(image)
+def findFields(image, red_mask, blue_mask):
+    hex_shape = np.load('hex.npy')
+    # a = findCircles(image)
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # image_gray = np.uint8(cv2.pow(image_gray/255, 1/2)*255)
-    a = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    image_gray = a.apply(image_gray)
-    thresh = [180, 255]
-    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
-    mask = cv2.bitwise_and(threshold, threshold2)
-    circles = findCircles(mask)
-    circles = cv2.bitwise_not(circles)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    image_gray = clahe.apply(image_gray)
+    thresh = [170, 255]
+    mask = thresholdInRange(image_gray, thresh)
+    # tmp_images2.append(mask)
+    # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((15, 15), np.uint8))
+    # tmp_images3.append(mask)
+    # mask = cv2.add(mask, pieces_mask)
     mask = cv2.add(mask, red_mask)
     mask = cv2.add(mask, blue_mask)
-    mask = cv2.add(mask, orange_mask)
-
-    maskCzyste = cv2.bitwise_and(mask, circles)
-
-    mask = cv2.morphologyEx(maskCzyste, cv2.MORPH_DILATE, np.ones((10, 10), np.uint8))
-    #tmp_images3.append(mask)
-    #mask = cv2.bitwise_not(mask)
+    # mask = cv2.bitwise_not(mask)
     contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    sort = sorted(contours, key=cv2.contourArea)
-    sort.reverse()
-    i = 0
-    for c in range(len(sort)):
-        if 1000 < cv2.contourArea( sort[c]) < 700000:
-            random_color = (rng.randint(0, 255), rng.randint(0, 255), rng.randint(0, 255))
-            cv2.drawContours(image, sort, c, random_color, cv2.FILLED)
-            i += 1
-            if i == 18:
-                break
+    # sort = sorted(contours, key=cv2.contourArea, reverse=True)
+    contours = [x for x in contours if 30000 < cv2.contourArea(x) < 500000 and
+                cv2.matchShapes(cv2.convexHull(x, False), hex_shape, 1, 0.0) < 0.03]
+    # found_fields_num = 0
+    contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    # Usuwanie znalezionych pól, żeby kolejna metoda szukania nie znalazła znowu tych samych
+    found_fields_mask = np.ones(image.shape[:2], dtype=np.uint8) * 255
+    for contour in contours:
+        # if cv2.contourArea(contours[c]) > 1:
+        # contour_hull = cv2.convexHull(contours[c], False)
+        # if c < 20:
+        # print(cv2.contourArea(sort[c]))
+        random_color = (rng.randint(0, 255), rng.randint(0, 255), rng.randint(0, 255))
+        hull = cv2.convexHull(contour, False)
+        # cv2.drawContours(image, sort, c, random_color, cv2.FILLED)
+        cv2.drawContours(image, [hull], -1, random_color, cv2.FILLED)
+        cv2.drawContours(found_fields_mask, [hull], -1, 0, cv2.FILLED)
+        # found_fields_num += 1
+    image = cv2.bitwise_and(image, image, mask=found_fields_mask)
+    found_fields_num = len(contours)
+    print("Found {}/19 fields".format(found_fields_num))
+    if found_fields_num == 19:
+        return image
 
-
-    #print(i)
+    # Seconds pass
+    h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
+    thresh = [100, 120]
+    image_gray = cv2.equalizeHist(s)
+    mask = thresholdInRange(image_gray, thresh)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    # Take only contours that are ok
+    contours = [x for x in contours if
+                cv2.contourArea(x) > 70000 and (cv2.matchShapes(x, hex_shape, 1, 0.0) < 0.03)]
+    for c in contours:
+        convex_hull = cv2.convexHull(c, False)
+        cv2.drawContours(image, [convex_hull], -1, 0, cv2.FILLED)
+        cv2.drawContours(found_fields_mask, [convex_hull], -1, 0, cv2.FILLED)
+    found_fields_num += len(contours)
+    image = cv2.bitwise_and(image, image, mask=found_fields_mask)
+    print("Found {}/19 fields. It's {} more than before.".format(found_fields_num, len(contours)))
+    if found_fields_num == 19:
+        return image
     return image
 
+
 def findCircles(data):
-    data = cv2.morphologyEx(data, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
-    data = cv2.morphologyEx(data, cv2.MORPH_DILATE, np.ones((17, 17), np.uint8))
-    data = cv2.morphologyEx(data, cv2.MORPH_ERODE, np.ones((25, 25), np.uint8))
-    tmp_images2.append(data)
-    contours, hierarchy = cv2.findContours(data, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    h_new = [0.1 * 180, 0.12 * 180]
+    s_new = [0.4 * 255, 0.5 * 255]
+    v_new = [0.7 * 255, 1 * 255]
+    # if (ktory == 3):
+    # data[:, 2, :] = 255
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+
+    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
+    # background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
+    contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
     sort.reverse()
-    circles = np.zeros(data.shape, np.uint8)
+    mask = np.zeros(data.shape, np.uint8)
+    i = 0
+    hull_list = []
     for c in range(len(sort)):
-        if 0 < cv2.contourArea(sort[c]) < 55000:
-            cv2.drawContours(circles, sort, c, (255,255,255), cv2.FILLED)
-    return circles
+        i += 1
+        hull = cv2.convexHull(sort[c])
+        hull_list.append(hull)
+    cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
+    # cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
+    mask = cv2.bitwise_not(mask)
+    images = cv2.bitwise_and(data, mask)
+    tmp_images2.append(background)
+    # tmp_images3.append(mask)
+    return images
 
-def removePieces(image):
-    # Jak na razie tylko 'proof of concept' działa jedynie dla niebieskich pionków i to też nie do końca
-    image_size = image.shape[:2]
-    blue_mask = np.zeros(image_size, dtype=np.uint8)
-    blue_range = [0, 2]
-    l, a, b = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2LAB))
-    image_gray = cv2.equalizeHist(b)
-    _, threshold = cv2.threshold(image_gray, blue_range[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, blue_range[1], 255, cv2.THRESH_BINARY_INV)
-    tmp = cv2.bitwise_and(threshold, threshold2)
-    contours, hierarchy = cv2.findContours(tmp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    for i, cont in enumerate(contours):
-        if cv2.contourArea(cont) > 100:
-            hull = cv2.convexHull(cont)
-            blue_mask = cv2.drawContours(blue_mask, [hull], -1, 255, cv2.FILLED)
-    mask_all = blue_mask  # Join all masks together
-    #tmp_images3.append(mask_all)
-    return mask_all
+
+# def removePieces(image):
+#     # Jak na razie tylko 'proof of concept' działa jedynie dla niebieskich pionków i to też nie do końca
+#     image_size = image.shape[:2]
+#     blue_mask = np.zeros(image_size, dtype=np.uint8)
+#     blue_range = [0, 2]
+#     l, a, b = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2LAB))
+#     image_gray = cv2.equalizeHist(b)
+#     _, threshold = cv2.threshold(image_gray, blue_range[0], 255, cv2.THRESH_BINARY)
+#     _, threshold2 = cv2.threshold(image_gray, blue_range[1], 255, cv2.THRESH_BINARY_INV)
+#     tmp = cv2.bitwise_and(threshold, threshold2)
+#     contours, hierarchy = cv2.findContours(tmp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+#     for i, cont in enumerate(contours):
+#         if cv2.contourArea(cont) > 100:
+#             hull = cv2.convexHull(cont)
+#             blue_mask = cv2.drawContours(blue_mask, [hull], -1, 255, cv2.FILLED)
+#     mask_all = blue_mask  # Join all masks together
+#     # tmp_images3.append(mask_all)
+#     return mask_all
+
+def findRedPieces(data):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    # if (ktory == 3):
+    # data[:, 2, :] = 255
+    # Finding two thresholds and then finding the common part
+    h_new = [0.07 * 180, 0.93 * 180]
+    s_new = [0.5 * 255, 1 * 255]
+    v_new = [0 * 255, 1 * 255]
+
+    _, threshold = cv2.threshold(h, h_new[0], 180, cv2.THRESH_BINARY_INV)
+    _, threshold2 = cv2.threshold(h, h_new[1], 180, cv2.THRESH_BINARY)
+    background1 = cv2.bitwise_xor(threshold, threshold2)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+    return background
+
 
 def removeRedPieces(data):
-    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # if (ktory == 3):
-    # data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    h_new = [0.07, 0.93]
-    s_new = [0.5, 1]
-    v_new = [0, 1]
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY_INV)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY)
-    background1 = cv2.bitwise_xor(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
-    background = cv2.bitwise_and(background1, background2, background3)
-    #tmp_images2.append(background)
-    #jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
+    background = findRedPieces(data)
+    # tmp_images2.append(background)
+    # jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((20, 20), np.uint8))
-    background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((115, 115), np.uint8))
-    #tmp_images3.append(background)
+    background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((70, 70), np.uint8))
+    # tmp_images3.append(background)
     # background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
@@ -183,38 +232,37 @@ def removeRedPieces(data):
         if cv2.contourArea(sort[c]) > 1000:
             hull = cv2.convexHull(sort[c])
             hull_list.append(hull)
-    cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
-    #cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((25, 25), np.uint8))
-    #images = cv2.bitwise_and(data, mask)
+    # cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
+    cv2.drawContours(mask, contours, -1, (255, 255, 255), cv2.FILLED)
+    # cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
+    # images = cv2.bitwise_and(data, mask)
     #     tmp_images3.append(mask)
     return mask
+
+
+def findBluePieces(data):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    # if (ktory == 3):
+    # data[:, 2, :] = 255
+    # Finding two thresholds and then finding the common part
+    h_new = [0.58 * 180, 0.69 * 180]
+    s_new = [0.3 * 255, 1 * 255]
+    v_new = [0 * 255, 0.6 * 255]
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+    background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8))
+    # tmp_images2.append(background)
+    return background
+
 
 def removeBluePieces(data):
-    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # if (ktory == 3):
-    # data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    h_new = [0.58, 0.69]
-    s_new = [0.5, 1]
-    v_new = [0, 0.6]
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
-    background = cv2.bitwise_and(background1, background2, background3)
-    #tmp_images2.append(background)
-    #jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
-    #background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((20, 20), np.uint8))
+    background = findBluePieces(data)
+    # background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((20, 20), np.uint8))
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
-    #tmp_images3.append(background)
+    # tmp_images3.append(background)
     # background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
@@ -225,55 +273,43 @@ def removeBluePieces(data):
         if cv2.contourArea(sort[c]) > 1000:
             hull = cv2.convexHull(sort[c])
             hull_list.append(hull)
-    cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
-    #cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
-    #images = cv2.bitwise_and(data, mask)
+    # cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
+    cv2.drawContours(mask, contours, -1, (255, 255, 255), cv2.FILLED)
+    # cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
+    # images = cv2.bitwise_and(data, mask)
     #     tmp_images3.append(mask)
     return mask
 
-def removeOrangePieces(data):
-    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # if (ktory == 3):
-    # data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    h_new = [0.05, 0.1]
-    s_new = [0.8, 1]
-    v_new = [0.85, 1]
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
-    background = cv2.bitwise_and(background1, background2, background3)
-    tmp_images3.append(background)
-    #tmp_images2.append(background)
-    #jeżeli chcemy tym wykrywać piony to trzeba to zrobic tu, przed dylacją
-    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8))
-    #background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((10, 10), np.uint8))
-    #tmp_images3.append(background)
-    # background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
-    contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    sort = sorted(contours, key=cv2.contourArea)
-    sort.reverse()
-    mask = np.zeros(data.shape[:2], np.uint8)
-    hull_list = []
-    for c in range(len(sort)):
-        if cv2.contourArea(sort[c]) > 1000:
-            hull = cv2.convexHull(sort[c])
-            hull_list.append(hull)
-    cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
-    #cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
-    #images = cv2.bitwise_and(data, mask)
-    #     tmp_images3.append(mask)
-    return mask
+
+def identifyPieces(image, pieces_mask, piece_color):
+    if piece_color == 'red':
+        pieces_colors = [(0, 0, 255), (255, 0, 255)]
+    else:
+        pieces_colors = [(255, 0, 0), (255, 255, 0)]
+    contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    for i, cont in enumerate(contours):
+        hull = cv2.convexHull(cont)
+        hull_area = cv2.contourArea(hull)
+        if 500 < hull_area < 15000:
+            # red_mask = cv2.drawContours(red_mask, [hull], -1, 255, cv2.FILLED)
+            try:
+                ellipse = cv2.fitEllipse(hull)
+            except cv2.error:  # Za mały kontur aby wpasować elipsę
+                continue
+            (x, y), (Ma, ma), angle = ellipse
+            if Ma / ma > 0.5:  # Jeśli osie elipsy są prawie równe mamy okrąg
+                color = pieces_colors[0]
+            else:  # Obiekt jest podłużny
+                color = pieces_colors[1]
+            cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
+        elif 15000 < hull_area < 50000:  # Jeśli kontur jest za duży, to być może dwa pionki się złączyły
+            new_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            new_mask = cv2.drawContours(new_mask, [cont], -1, 255, cv2.FILLED)
+            new_mask = cv2.morphologyEx(new_mask, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
+            image = identifyPieces(image, new_mask, piece_color)
+    return image
+
 
 # def removeFrame(image):
 #     h, w = image.shape[:2]
@@ -291,24 +327,15 @@ def removeOrangePieces(data):
 
 def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    #if (ktory == 3):
-        #data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
-    background = cv2.bitwise_and(background1,background2,background3)
+    # if (ktory == 3):
+    # data[:, 2, :] = 255
+    background1 = thresholdBetweenValues(h, h_new[0] * 180, h_new[1] * 180)
+    background2 = thresholdBetweenValues(s, s_new[0] * 255, s_new[1] * 255)
+    background3 = thresholdBetweenValues(v, v_new[0] * 255, v_new[1] * 255)
+    background = cv2.bitwise_and(background1, background2, background3)
 
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
-    #background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
+    # background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
     sort.reverse()
@@ -331,6 +358,7 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     #     tmp_images3.append(mask)
     return images
 
+
 def workOnImage(rawData):
     image = rawData.copy()
     contour = findBackground(image)
@@ -344,23 +372,33 @@ def workOnImage(rawData):
         mask = drawContourOnImage(mask, contour_hull)
     image = cutBackground(image, mask)
     kernel = np.ones((30, 30), np.float32) / 900
-    #image = cv2.bilateralFilter(image, 50, 250, 250)
-    #image = cv2.filter2D(image, -1, kernel)
-    #image = cv2.blur(image, (40,40))
-    #image = cv2.medianBlur(image, 15)
+    # image = cv2.bilateralFilter(image, 50, 250, 250)
+    # image = cv2.filter2D(image, -1, kernel)
+    # image = cv2.blur(image, (40,40))
+    # image = cv2.medianBlur(image, 15)
 
-    #image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 4, 1)  # owce
-    #image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
-    #image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
-    #image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
-    rawData = findFields(image)
-
+    # image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 4, 1)  # owce
+    # image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
+    # image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
+    # image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
+    blue_pieces = findBluePieces(image)
+    red_pieces = findRedPieces(image)
+    blue_mask = removeBluePieces(image)
+    red_mask = removeRedPieces(image)
+    rawData = findFields(image, red_mask, blue_mask)
+    # Z jednej strony jeśli tutaj ponownie będziemy szukać pionków, to unikniemy mylenia gliny z czerwonym pionkiem
+    # Z drugiej, jeśli któreś pole ma zbyt duży kontur i wycięło pionek, to stracimy ten pionek
+    # blue_pieces = findBluePieces(image)
+    # red_pieces = findRedPieces(image)
+    rawData = identifyPieces(rawData, blue_pieces, 'blue')
+    rawData = identifyPieces(rawData, red_pieces, 'red')
     return rawData
 
 
 def main():
     images = loadImages()
-    for image in images:
+    for i, image in enumerate(images):
+        print("Processing image {}/{}".format(i + 1, len(images)))
         processed_images.append(image)
         data = image.copy()
         imageDone = workOnImage(data)
@@ -389,3 +427,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
