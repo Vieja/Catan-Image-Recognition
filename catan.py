@@ -174,7 +174,7 @@ def findCircles(data):
     mask = cv2.bitwise_not(mask)
     images = cv2.bitwise_and(data, mask)
     tmp_images2.append(background)
-    tmp_images3.append(mask)
+    # tmp_images3.append(mask)
     return images
 
 
@@ -247,12 +247,13 @@ def findBluePieces(data):
     # data[:, 2, :] = 255
     # Finding two thresholds and then finding the common part
     h_new = [0.58 * 180, 0.69 * 180]
-    s_new = [0.5 * 255, 1 * 255]
+    s_new = [0.3 * 255, 1 * 255]
     v_new = [0 * 255, 0.6 * 255]
     background1 = thresholdInRange(h, h_new)
     background2 = thresholdInRange(s, s_new)
     background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
+    background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8))
     # tmp_images2.append(background)
     return background
 
@@ -281,23 +282,32 @@ def removeBluePieces(data):
     return mask
 
 
-def identifyPieces(image, pieces_mask, color):
-    if color == 'red':
+def identifyPieces(image, pieces_mask, piece_color):
+    if piece_color == 'red':
         pieces_colors = [(0, 0, 255), (255, 0, 255)]
     else:
         pieces_colors = [(255, 0, 0), (255, 255, 0)]
     contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     for i, cont in enumerate(contours):
         hull = cv2.convexHull(cont)
-        if 500 < cv2.contourArea(hull) < 10000:
+        hull_area = cv2.contourArea(hull)
+        if 500 < hull_area < 15000:
             # red_mask = cv2.drawContours(red_mask, [hull], -1, 255, cv2.FILLED)
-            ellipse = cv2.fitEllipse(hull)
+            try:
+                ellipse = cv2.fitEllipse(hull)
+            except cv2.error:  # Za mały kontur aby wpasować elipsę
+                continue
             (x, y), (Ma, ma), angle = ellipse
             if Ma / ma > 0.5:  # Jeśli osie elipsy są prawie równe mamy okrąg
                 color = pieces_colors[0]
             else:  # Obiekt jest podłużny
                 color = pieces_colors[1]
             cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
+        elif 15000 < hull_area < 50000:  # Jeśli kontur jest za duży, to być może dwa pionki się złączyły
+            new_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            new_mask = cv2.drawContours(new_mask, [cont], -1, 255, cv2.FILLED)
+            new_mask = cv2.morphologyEx(new_mask, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
+            image = identifyPieces(image, new_mask, piece_color)
     return image
 
 
@@ -321,7 +331,7 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     # data[:, 2, :] = 255
     background1 = thresholdBetweenValues(h, h_new[0] * 180, h_new[1] * 180)
     background2 = thresholdBetweenValues(s, s_new[0] * 255, s_new[1] * 255)
-    background3 = thresholdBetweenValues(v.v_new[0] * 255, v_new[1] * 255)
+    background3 = thresholdBetweenValues(v, v_new[0] * 255, v_new[1] * 255)
     background = cv2.bitwise_and(background1, background2, background3)
 
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
@@ -371,13 +381,15 @@ def workOnImage(rawData):
     # image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
     # image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
     # image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
+    blue_pieces = findBluePieces(image)
+    red_pieces = findRedPieces(image)
     blue_mask = removeBluePieces(image)
     red_mask = removeRedPieces(image)
     rawData = findFields(image, red_mask, blue_mask)
     # Z jednej strony jeśli tutaj ponownie będziemy szukać pionków, to unikniemy mylenia gliny z czerwonym pionkiem
     # Z drugiej, jeśli któreś pole ma zbyt duży kontur i wycięło pionek, to stracimy ten pionek
-    blue_pieces = findBluePieces(image)
-    red_pieces = findRedPieces(image)
+    # blue_pieces = findBluePieces(image)
+    # red_pieces = findRedPieces(image)
     rawData = identifyPieces(rawData, blue_pieces, 'blue')
     rawData = identifyPieces(rawData, red_pieces, 'red')
     return rawData
