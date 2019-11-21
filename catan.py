@@ -27,13 +27,12 @@ def drawContourOnImage(image, contour):
     return image
 
 
-def findBackground(image):
+def findBackground(image, blue):
     min = np.percentile(image, 5)
     max = np.percentile(image, 95)
     # TODO: Adjust histogram using percentiles
 
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    blue = [0.50, 0.65]
     # Finding two thresholds and then finding the common part
     _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
@@ -72,74 +71,20 @@ def cutBackground(image, mask):
     return image
 
 
-def findFields(image):
-    # Pionki zakrywają linie między polami, więc pomyślałem, żeby spróbować znaleźć pionki
-    # i niejako w ich miejscu dorysować linie
-    pieces_mask = removePieces(image)
-    h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # image_gray = np.uint8(cv2.pow(image_gray/255, 1/2)*255)
-    a = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
-    image_gray = a.apply(image_gray)
-    thresh = [170, 255]
-    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
-    mask = cv2.bitwise_and(threshold, threshold2)
-    # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((7, 7), np.uint8))
-    mask = cv2.subtract(mask, pieces_mask)
-    #tmp_images2.append(mask)
-    contours, hierarchy = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
-    print(len(contours))
-    for c in range(len(contours)):
-        if cv2.contourArea(contours[c]) > 1000:
-            contour_hull = cv2.convexHull(contours[c], False)
-            random_color = (rng.randint(0, 255), rng.randint(0, 255), rng.randint(0, 255))
-            cv2.drawContours(image, contours, c, random_color, cv2.FILLED)
-            # cv2.drawContours(image, [contour_hull], -1, random_color, cv2.FILLED)
-
-    return image
-
-def removePieces(image):
-    # Jak na razie tylko 'proof of concept' działa jedynie dla niebieskich pionków i to też nie do końca
-    image_size = image.shape[:2]
-    blue_mask = np.zeros(image_size, dtype=np.uint8)
-    blue_range = [0, 2]
-    l, a, b = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2LAB))
-    image_gray = cv2.equalizeHist(b)
-    _, threshold = cv2.threshold(image_gray, blue_range[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, blue_range[1], 255, cv2.THRESH_BINARY_INV)
-    tmp = cv2.bitwise_and(threshold, threshold2)
-    contours, hierarchy = cv2.findContours(tmp, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-    for i, cont in enumerate(contours):
-        if cv2.contourArea(cont) > 100:
-            hull = cv2.convexHull(cont)
-            blue_mask = cv2.drawContours(blue_mask, [hull], -1, 255, cv2.FILLED)
-    mask_all = blue_mask  # Join all masks together
-    return mask_all
-
-def removeFrame(image):
-    h, w = image.shape[:2]
-    if h > w:
-        big = h
-    else:
-        big = w
-    dim = (w, h)
-    cropp = int (0.2 * big)
-    cropped = image[cropp : h-cropp, cropp : w-cropp]
-    # perform the actual resizing of the image and show it
-    resized = cv2.resize(cropped, dim, interpolation=cv2.INTER_AREA)
-    #tmp_images2.append(resized)
-    return image
-
 def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
     #if (ktory == 3):
         #data[:, 2, :] = 255
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-    background1 = cv2.bitwise_and(threshold, threshold2)
+    if ktory == 3:
+        # Finding two thresholds and then finding the common part
+        _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY_INV)
+        _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY)
+        background1 = cv2.bitwise_xor(threshold, threshold2)
+    else:
+        # Finding two thresholds and then finding the common part
+        _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
+        _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
+        background1 = cv2.bitwise_and(threshold, threshold2)
     # Finding two thresholds and then finding the common part
     _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
@@ -149,9 +94,14 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
     background3 = cv2.bitwise_and(threshold, threshold2)
     background = cv2.bitwise_and(background1,background2,background3)
-
-    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
-    #background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((2, 2), np.uint8))
+    if ktory == 5:
+        background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((85, 85), np.uint8))
+        background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
+    elif ktory == 3:
+        background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
+        background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((70, 70), np.uint8))
+    else:
+        background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
     sort.reverse()
@@ -159,24 +109,25 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     i = 0
     hull_list = []
     for c in range(len(sort)):
-        i += 1
-        hull = cv2.convexHull(sort[c])
-        hull_list.append(hull)
-        if i == ile:
-            break
+        if cv2.contourArea(sort[c]) < 170000:
+            i += 1
+            hull = cv2.convexHull(sort[c])
+            hull_list.append(hull)
+            if i == ile:
+                break
     cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
     cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((20, 20), np.uint8))
+    if ktory == 6:
+        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
+    else:
+        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
     mask = cv2.bitwise_not(mask)
     images = cv2.bitwise_and(data, mask)
-    if ktory == 3:
-        tmp_images2.append(background)
-        tmp_images3.append(mask)
     return images
 
 def workOnImage(rawData):
     image = rawData.copy()
-    contour = findBackground(image)
+    contour = findBackground(image, [0.50, 0.65])
     image_size = image.shape[:2]
     mask = np.zeros(image_size, dtype=np.uint8)
     contour_hull = cv2.convexHull(contour, False)
@@ -186,6 +137,7 @@ def workOnImage(rawData):
     else:
         mask = drawContourOnImage(mask, contour_hull)
     image = cutBackground(image, mask)
+    image2 = image.copy()
     kernel = np.ones((30, 30), np.float32) / 900
     #image = cv2.bilateralFilter(image, 50, 250, 250)
     image = cv2.filter2D(image, -1, kernel)
@@ -194,8 +146,42 @@ def workOnImage(rawData):
 
     image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 4, 1)  # owce
     image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
-    #image = findTerrain(rawData, image, (115, 115, 115), [0.0, 1], [0, 0.2], [0.4, 0.7], 3, 3)  # gory
-    image = findTerrain(rawData, image, (115, 115, 115), [0.15, 0.28], [0.42, 0.7], [0, 1], 3, 3)  # gory
+
+    image_gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
+    a = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    image_gray = a.apply(image_gray)
+    thresh = [220, 255]
+    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
+    mask = cv2.bitwise_and(threshold, threshold2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((45, 45), np.uint8))
+    mask = cv2.bitwise_not(mask)
+    image = cutBackground(image, mask)
+
+    resztkiWody = np.zeros(image_size, dtype=np.uint8)
+    cont = findBackground(image, [0.4, 0.8])
+    resztkiWody = drawContourOnImage(resztkiWody, cont)
+    resztkiWody = cv2.bitwise_not(resztkiWody)
+    image = cutBackground(image, resztkiWody)
+    wynGory = findTerrain(rawData, image, (115, 115, 115), [0.07, 0.90], [0, 0.4], [0.3, 0.7], 3, 3)  # gory
+
+    saturacja = cv2.cvtColor(wynGory, cv2.COLOR_BGR2HSV).astype("float32")
+    (h, s, v) = cv2.split(saturacja)
+    s = s * 5
+    s = np.clip(s, 0, 255)
+    saturacja = cv2.merge([h, s, v])
+    saturacja = cv2.cvtColor(saturacja.astype("uint8"), cv2.COLOR_HSV2BGR)
+
+    image = findTerrain(rawData, saturacja, (0, 50, 185), [0.07, 0.1], [0, 10], [0.4, 0.95], 3, 4)  # glina
+
+    tmp_images2.append(wynGory)
+    image = cv2.cv2.morphologyEx(image, cv2.MORPH_ERODE, np.ones((60, 60), np.uint8))
+    image = cv2.cv2.morphologyEx(image, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
+    image = findTerrain(rawData, image, (0, 135, 185), [0.1, 0.15], [0, 10], [0.75, 1], 1, 5) # pustynia
+    tmp_images3.append(image)
+    image = findTerrain(rawData, image, (0, 185, 255), [0, 0.25], [0, 10], [0.2, 0.75], 4, 6) #pola
+
     return rawData
 
 
