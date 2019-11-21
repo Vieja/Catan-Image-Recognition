@@ -26,19 +26,23 @@ def drawContourOnImage(image, contour):
     cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
     return image
 
+def thresholdBetweenValues(image, thresh_min, thresh_max, value):
+    # Finding two thresholds and then finding the common part
+    _, threshold = cv2.threshold(image, thresh_min, value, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(image, thresh_max, value, cv2.THRESH_BINARY_INV)
+    return cv2.bitwise_and(threshold, threshold2)
 
-def findBackground(image, blue):
-    min = np.percentile(image, 5)
-    max = np.percentile(image, 95)
-    # TODO: Adjust histogram using percentiles
+def thresholdInRange(image, threshold_range, value):
+    return thresholdBetweenValues(image, threshold_range[0], threshold_range[1], value)
 
+def findBackground(image):
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
+    blue = [0.5, 0.65]
     # Finding two thresholds and then finding the common part
     _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
     background = cv2.bitwise_and(threshold, threshold2)
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
-
     contours, hierarchy = cv2.findContours(background, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     # Find two biggest contours
     max_area_index = 0
@@ -73,8 +77,6 @@ def cutBackground(image, mask):
 
 def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    #if (ktory == 3):
-        #data[:, 2, :] = 255
     if ktory == 3:
         # Finding two thresholds and then finding the common part
         _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY_INV)
@@ -100,34 +102,38 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     elif ktory == 3:
         background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
         background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((70, 70), np.uint8))
-    else:
+    elif ktory != 6:
         background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
-    contours, hierarchy = cv2.findContours(background, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(background, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
     sort.reverse()
     mask = np.zeros(data.shape, np.uint8)
     i = 0
     hull_list = []
+
     for c in range(len(sort)):
         if cv2.contourArea(sort[c]) < 170000:
             i += 1
             hull = cv2.convexHull(sort[c])
+            M = cv2.moments(hull)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+            cv2.circle(rawData, (cX, cY), 70, (0,0,0), -1)
+            cv2.circle(rawData, (cX, cY), 50, color, -1)
             hull_list.append(hull)
             if i == ile:
                 break
     cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
-    cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
-    if ktory == 6:
-        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
-    else:
-        mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((40, 40), np.uint8))
+    #cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
+
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((90, 90), np.uint8))
     mask = cv2.bitwise_not(mask)
     images = cv2.bitwise_and(data, mask)
     return images
 
 def workOnImage(rawData):
     image = rawData.copy()
-    contour = findBackground(image, [0.50, 0.65])
+    contour = findBackground(image)
     image_size = image.shape[:2]
     mask = np.zeros(image_size, dtype=np.uint8)
     contour_hull = cv2.convexHull(contour, False)
@@ -137,14 +143,13 @@ def workOnImage(rawData):
     else:
         mask = drawContourOnImage(mask, contour_hull)
     image = cutBackground(image, mask)
+
     image2 = image.copy()
     kernel = np.ones((30, 30), np.float32) / 900
-    #image = cv2.bilateralFilter(image, 50, 250, 250)
-    image = cv2.filter2D(image, -1, kernel)
-    #image = cv2.blur(image, (40,40))
-    #image = cv2.medianBlur(image, 15)
+    #image = cv2.filter2D(image, -1, kernel)
+    image = cv2.medianBlur(image, 15)
 
-    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0, 1], [0, 1], 4, 1)  # owce
+    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0.4, 1], [0.6, 1], 4, 1)  # owce
     image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
 
     image_gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
@@ -154,16 +159,12 @@ def workOnImage(rawData):
     _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
     mask = cv2.bitwise_and(threshold, threshold2)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((45, 45), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((8, 8), np.uint8))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((12, 12), np.uint8))
     mask = cv2.bitwise_not(mask)
     image = cutBackground(image, mask)
 
-    resztkiWody = np.zeros(image_size, dtype=np.uint8)
-    cont = findBackground(image, [0.4, 0.8])
-    resztkiWody = drawContourOnImage(resztkiWody, cont)
-    resztkiWody = cv2.bitwise_not(resztkiWody)
-    image = cutBackground(image, resztkiWody)
     wynGory = findTerrain(rawData, image, (115, 115, 115), [0.07, 0.90], [0, 0.4], [0.3, 0.7], 3, 3)  # gory
 
     saturacja = cv2.cvtColor(wynGory, cv2.COLOR_BGR2HSV).astype("float32")
@@ -175,9 +176,9 @@ def workOnImage(rawData):
 
     image = findTerrain(rawData, saturacja, (0, 50, 185), [0.07, 0.1], [0, 10], [0.4, 0.95], 3, 4)  # glina
 
-    tmp_images2.append(wynGory)
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_ERODE, np.ones((60, 60), np.uint8))
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
+    tmp_images2.append(image)
     image = findTerrain(rawData, image, (0, 135, 185), [0.1, 0.15], [0, 10], [0.75, 1], 1, 5) # pustynia
     tmp_images3.append(image)
     image = findTerrain(rawData, image, (0, 185, 255), [0, 0.25], [0, 10], [0.2, 0.75], 4, 6) #pola
@@ -187,7 +188,8 @@ def workOnImage(rawData):
 
 def main():
     images = loadImages()
-    for image in images:
+    for i, image in enumerate(images):
+        print("Processing image {}/{}".format(i + 1, len(images)))
         processed_images.append(image)
         data = image.copy()
         imageDone = workOnImage(data)
