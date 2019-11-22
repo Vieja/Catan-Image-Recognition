@@ -1,15 +1,13 @@
 import os
 import cv2
 import numpy as np
-import random as rng
-
-# INFO: Zdjęcia można przybliżać scrollem, dowolny klawisz przewija zdjęcie na kolejne
 
 # Elements of those lists will be displayed in windows
 processed_images = []
 tmp_images = []
 tmp_images2 = []
 tmp_images3 = []
+
 
 def loadImages():
     images = []
@@ -26,22 +24,22 @@ def drawContourOnImage(image, contour):
     cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
     return image
 
+
 def thresholdBetweenValues(image, thresh_min, thresh_max):
     # Finding two thresholds and then finding the common part
     _, threshold = cv2.threshold(image, thresh_min, 255, cv2.THRESH_BINARY)
     _, threshold2 = cv2.threshold(image, thresh_max, 255, cv2.THRESH_BINARY_INV)
     return cv2.bitwise_and(threshold, threshold2)
 
+
 def thresholdInRange(image, threshold_range):
     return thresholdBetweenValues(image, threshold_range[0], threshold_range[1])
 
+
 def findBackground(image):
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
-    blue = [0.5, 0.65]
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(h, blue[0] * 180, 250, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(h, blue[1] * 180, 250, cv2.THRESH_BINARY_INV)
-    background = cv2.bitwise_and(threshold, threshold2)
+    blue = [0.5 * 180, 0.65 * 180]
+    background = thresholdInRange(h, blue)
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((7, 7), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     # Find two biggest contours
@@ -70,13 +68,13 @@ def findBackground(image):
         best_contour = contours[max_area_index]
     return best_contour
 
+
 def cutBackground(image, mask):
-    image = cv2.bitwise_and(image, image, mask=mask)
-    return image
+    return cv2.bitwise_and(image, image, mask=mask)
+
 
 def findRedPieces(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # Finding two thresholds and then finding the common part
     h_new = [0.04 * 180, 0.93 * 180]
     s_new = [0.5 * 255, 1 * 255]
     v_new = [0 * 255, 1 * 255]
@@ -91,9 +89,9 @@ def findRedPieces(data):
     tmp_images3.append(background)
     return background
 
+
 def findBluePieces(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # Finding two thresholds and then finding the common part
     h_new = [0.58 * 180, 0.69 * 180]
     s_new = [0.3 * 255, 1 * 255]
     v_new = [0 * 255, 0.6 * 255]
@@ -105,9 +103,9 @@ def findBluePieces(data):
     background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((8, 8), np.uint8))
     return background
 
+
 def findOrangePieces(data):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    # Finding two thresholds and then finding the common part
     h_new = [0.05 * 180, 0.1 * 180]
     s_new = [0.8 * 255, 1 * 255]
     v_new = [0.85 * 255, 1 * 255]
@@ -122,13 +120,13 @@ def findOrangePieces(data):
 def identifyPieces(image, pieces_mask, piece_color):
     if piece_color == 'red':
         pieces_colors = [(0, 0, 255), (255, 125, 255)]
-        limit = 4000 # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
+        limit = 4000  # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
     elif piece_color == 'blue':
         pieces_colors = [(255, 0, 0), (255, 255, 0)]
         limit = 2500
     else:
         pieces_colors = [(0, 110, 255), (80, 165, 255)]
-        limit = 3000 # czasem znajduje pomarańcz na polach ze zbożem
+        limit = 3000  # czasem znajduje pomarańcz na polach ze zbożem
     contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     for i, cont in enumerate(contours):
         hull = cv2.convexHull(cont)
@@ -144,8 +142,8 @@ def identifyPieces(image, pieces_mask, piece_color):
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
             if Ma / ma > 0.8:  # Jeśli osie elipsy są prawie równe mamy okrąg
-                cv2.rectangle(image, (cX-35, cY-35), (cX+35, cY+35), pieces_colors[0], -1)
-                cv2.rectangle(image, (cX-30, cY-30), (cX+30, cY+30), pieces_colors[1], -1)
+                cv2.rectangle(image, (cX - 35, cY - 35), (cX + 35, cY + 35), pieces_colors[0], -1)
+                cv2.rectangle(image, (cX - 30, cY - 30), (cX + 30, cY + 30), pieces_colors[1], -1)
             else:  # Obiekt jest podłużny
                 diamond = np.array([[[cX - 20, cY], [cX, cY + 30], [cX + 20, cY], [cX, cY - 30]]], np.int32)
                 cv2.fillConvexPoly(image, diamond, pieces_colors[1])
@@ -162,32 +160,23 @@ def identifyPieces(image, pieces_mask, piece_color):
 
 def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
-    if ktory == 3:
-        # Finding two thresholds and then finding the common part
+    # Według wiki pola w Catanie to: brick, lumber, wool, grain, ore, desert
+    if ktory == 'ore':
         _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY_INV)
         _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY)
         background1 = cv2.bitwise_xor(threshold, threshold2)
     else:
-        # Finding two thresholds and then finding the common part
-        _, threshold = cv2.threshold(h, h_new[0] * 180, 180, cv2.THRESH_BINARY)
-        _, threshold2 = cv2.threshold(h, h_new[1] * 180, 180, cv2.THRESH_BINARY_INV)
-        background1 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(s, s_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(s, s_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background2 = cv2.bitwise_and(threshold, threshold2)
-    # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(v, v_new[0] * 255, 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(v, v_new[1] * 255, 255, cv2.THRESH_BINARY_INV)
-    background3 = cv2.bitwise_and(threshold, threshold2)
-    background = cv2.bitwise_and(background1,background2,background3)
-    if ktory == 5:
+        background1 = thresholdBetweenValues(h, h_new[0] * 180, h_new[1] * 180)
+    background2 = thresholdBetweenValues(s, s_new[0] * 255, s_new[1] * 255)
+    background3 = thresholdBetweenValues(v, v_new[0] * 255, v_new[1] * 255)
+    background = cv2.bitwise_and(background1, background2, background3)
+    if ktory == 'desert':
         background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((85, 85), np.uint8))
         background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
-    elif ktory == 3:
+    elif ktory == 'ore':
         background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((10, 10), np.uint8))
         background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((70, 70), np.uint8))
-    elif ktory != 6:
+    elif ktory != 'grain':
         background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
     contours, hierarchy = cv2.findContours(background, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     sort = sorted(contours, key=cv2.contourArea)
@@ -203,7 +192,7 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
             M = cv2.moments(hull)
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
-            cv2.circle(rawData, (cX, cY), 70, (0,0,0), -1)
+            cv2.circle(rawData, (cX, cY), 70, (0, 0, 0), -1)
             cv2.circle(rawData, (cX, cY), 50, color, -1)
             hull_list.append(hull)
             if i == ile:
@@ -214,6 +203,7 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
     mask = cv2.bitwise_not(mask)
     images = cv2.bitwise_and(data, mask)
     return images
+
 
 def workOnImage(rawData):
     image = rawData.copy()
@@ -239,23 +229,22 @@ def workOnImage(rawData):
     rawData = identifyPieces(rawData, red_pieces, 'red')
     rawData = identifyPieces(rawData, orange_pieces, 'orange')
 
-    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0.4, 1], [0.6, 1], 4, 1)  # owce
-    image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
+    # Według wiki pola w Catanie to: brick, lumber, wool, grain, ore, desert
+    image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0.4, 1], [0.6, 1], 4, 'wool')  # owce
+    image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 'lumber')  # las
 
     image_gray = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
-    a = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    image_gray = a.apply(image_gray)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    image_gray = clahe.apply(image_gray)
     thresh = [220, 255]
-    _, threshold = cv2.threshold(image_gray, thresh[0], 255, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image_gray, thresh[1], 255, cv2.THRESH_BINARY_INV)
-    mask = cv2.bitwise_and(threshold, threshold2)
+    mask = thresholdInRange(image_gray, thresh)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))
     mask = cv2.morphologyEx(mask, cv2.MORPH_ERODE, np.ones((8, 8), np.uint8))
     mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((12, 12), np.uint8))
     mask = cv2.bitwise_not(mask)
     image = cutBackground(image, mask)
 
-    wynGory = findTerrain(rawData, image, (115, 115, 115), [0.07, 0.90], [0, 0.4], [0.3, 0.7], 3, 3)  # gory
+    wynGory = findTerrain(rawData, image, (115, 115, 115), [0.07, 0.90], [0, 0.4], [0.3, 0.7], 3, 'ore')  # gory
 
     saturacja = cv2.cvtColor(wynGory, cv2.COLOR_BGR2HSV).astype("float32")
     (h, s, v) = cv2.split(saturacja)
@@ -264,13 +253,12 @@ def workOnImage(rawData):
     saturacja = cv2.merge([h, s, v])
     saturacja = cv2.cvtColor(saturacja.astype("uint8"), cv2.COLOR_HSV2BGR)
 
-    image = findTerrain(rawData, saturacja, (0, 50, 185), [0.07, 0.1], [0, 10], [0.4, 0.95], 3, 4)  # glina
+    image = findTerrain(rawData, saturacja, (0, 50, 185), [0.07, 0.1], [0, 10], [0.4, 0.95], 3, 'brick')  # glina
 
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_ERODE, np.ones((60, 60), np.uint8))
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
-    image = findTerrain(rawData, image, (0, 135, 185), [0.1, 0.15], [0, 10], [0.75, 1], 1, 5) # pustynia
-    image = findTerrain(rawData, image, (0, 185, 255), [0, 0.25], [0, 10], [0.2, 0.75], 4, 6) #pola
-
+    image = findTerrain(rawData, image, (0, 135, 185), [0.1, 0.15], [0, 10], [0.75, 1], 1, 'desert')  # pustynia
+    image = findTerrain(rawData, image, (0, 185, 255), [0, 0.25], [0, 10], [0.2, 0.75], 4, 'grain')  # pola
 
     return rawData
 
