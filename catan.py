@@ -13,7 +13,7 @@ tmp_images3 = []
 
 def loadImages():
     images = []
-    main_dir = 'catan-photos'
+    main_dir = 'photos'
     for directory in os.listdir(main_dir):
         for file_name in os.listdir(main_dir + '/' + directory):
             file_path = main_dir + '/' + directory + '/' + file_name
@@ -26,14 +26,14 @@ def drawContourOnImage(image, contour):
     cv2.drawContours(image, [contour], -1, 255, cv2.FILLED)
     return image
 
-def thresholdBetweenValues(image, thresh_min, thresh_max, value):
+def thresholdBetweenValues(image, thresh_min, thresh_max):
     # Finding two thresholds and then finding the common part
-    _, threshold = cv2.threshold(image, thresh_min, value, cv2.THRESH_BINARY)
-    _, threshold2 = cv2.threshold(image, thresh_max, value, cv2.THRESH_BINARY_INV)
+    _, threshold = cv2.threshold(image, thresh_min, 255, cv2.THRESH_BINARY)
+    _, threshold2 = cv2.threshold(image, thresh_max, 255, cv2.THRESH_BINARY_INV)
     return cv2.bitwise_and(threshold, threshold2)
 
-def thresholdInRange(image, threshold_range, value):
-    return thresholdBetweenValues(image, threshold_range[0], threshold_range[1], value)
+def thresholdInRange(image, threshold_range):
+    return thresholdBetweenValues(image, threshold_range[0], threshold_range[1])
 
 def findBackground(image):
     h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
@@ -72,6 +72,84 @@ def findBackground(image):
 
 def cutBackground(image, mask):
     image = cv2.bitwise_and(image, image, mask=mask)
+    return image
+
+def findRedPieces(data):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    # Finding two thresholds and then finding the common part
+    h_new = [0.04 * 180, 0.93 * 180]
+    s_new = [0.5 * 255, 1 * 255]
+    v_new = [0 * 255, 1 * 255]
+    _, threshold = cv2.threshold(h, h_new[0], 180, cv2.THRESH_BINARY_INV)
+    _, threshold2 = cv2.threshold(h, h_new[1], 180, cv2.THRESH_BINARY)
+    background1 = cv2.bitwise_xor(threshold, threshold2)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+    tmp_images2.append(background)
+    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8))
+    tmp_images3.append(background)
+    return background
+
+def findBluePieces(data):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    # Finding two thresholds and then finding the common part
+    h_new = [0.58 * 180, 0.69 * 180]
+    s_new = [0.3 * 255, 1 * 255]
+    v_new = [0 * 255, 0.6 * 255]
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+    background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((6, 6), np.uint8))
+    background = cv2.morphologyEx(background, cv2.MORPH_DILATE, np.ones((8, 8), np.uint8))
+    return background
+
+def findOrangePieces(data):
+    h, s, v = cv2.split(cv2.cvtColor(data, cv2.COLOR_BGR2HSV))
+    # Finding two thresholds and then finding the common part
+    h_new = [0.05 * 180, 0.1 * 180]
+    s_new = [0.8 * 255, 1 * 255]
+    v_new = [0.85 * 255, 1 * 255]
+    background1 = thresholdInRange(h, h_new)
+    background2 = thresholdInRange(s, s_new)
+    background3 = thresholdInRange(v, v_new)
+    background = cv2.bitwise_and(background1, background2, background3)
+    background = cv2.morphologyEx(background, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8))
+    return background
+
+
+def identifyPieces(image, pieces_mask, piece_color):
+    if piece_color == 'red':
+        pieces_colors = [(0, 0, 255), (255, 0, 255)]
+        limit = 4000 # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
+    elif piece_color == 'blue':
+        pieces_colors = [(255, 0, 0), (255, 255, 0)]
+        limit = 500
+    else:
+        pieces_colors = [(0, 110, 255), (80, 165, 255)]
+        limit = 3000 # czasem znajduje pomarańcz na polach ze zbożem
+    contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
+    for i, cont in enumerate(contours):
+        hull = cv2.convexHull(cont)
+        hull_area = cv2.contourArea(hull)
+        if limit < hull_area < 15000:
+            # red_mask = cv2.drawContours(red_mask, [hull], -1, 255, cv2.FILLED)
+            try:
+                ellipse = cv2.fitEllipse(hull)
+            except cv2.error:  # Za mały kontur aby wpasować elipsę
+                continue
+            (x, y), (Ma, ma), angle = ellipse
+            if Ma / ma > 0.5:  # Jeśli osie elipsy są prawie równe mamy okrąg
+                color = pieces_colors[0]
+            else:  # Obiekt jest podłużny
+                color = pieces_colors[1]
+            cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
+        elif 15000 < hull_area < 50000:  # Jeśli kontur jest za duży, to być może dwa pionki się złączyły
+            new_mask = np.zeros(image.shape[:2], dtype=np.uint8)
+            new_mask = cv2.drawContours(new_mask, [cont], -1, 255, cv2.FILLED)
+            new_mask = cv2.morphologyEx(new_mask, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
+            image = identifyPieces(image, new_mask, piece_color)
     return image
 
 
@@ -124,7 +202,6 @@ def findTerrain(rawData, data, color, h_new, s_new, v_new, ile, ktory):
             if i == ile:
                 break
     cv2.drawContours(mask, hull_list, -1, (255, 255, 255), cv2.FILLED)
-    #cv2.drawContours(rawData, hull_list, -1, color, cv2.FILLED)
 
     mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, np.ones((90, 90), np.uint8))
     mask = cv2.bitwise_not(mask)
@@ -145,9 +222,15 @@ def workOnImage(rawData):
     image = cutBackground(image, mask)
 
     image2 = image.copy()
-    kernel = np.ones((30, 30), np.float32) / 900
-    #image = cv2.filter2D(image, -1, kernel)
     image = cv2.medianBlur(image, 15)
+
+    blue_pieces = findBluePieces(image)
+    red_pieces = findRedPieces(image)
+    orange_pieces = findOrangePieces(image)
+
+    rawData = identifyPieces(rawData, blue_pieces, 'blue')
+    rawData = identifyPieces(rawData, red_pieces, 'red')
+    rawData = identifyPieces(rawData, orange_pieces, 'orange')
 
     image = findTerrain(rawData, image, (0, 255, 0), [0.15, 0.3], [0.4, 1], [0.6, 1], 4, 1)  # owce
     image = findTerrain(rawData, image, (0, 100, 0), [0.13, 0.2], [0.4, 1], [0, 0.4], 4, 2)  # las
@@ -178,10 +261,9 @@ def workOnImage(rawData):
 
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_ERODE, np.ones((60, 60), np.uint8))
     image = cv2.cv2.morphologyEx(image, cv2.MORPH_DILATE, np.ones((30, 30), np.uint8))
-    tmp_images2.append(image)
     image = findTerrain(rawData, image, (0, 135, 185), [0.1, 0.15], [0, 10], [0.75, 1], 1, 5) # pustynia
-    tmp_images3.append(image)
     image = findTerrain(rawData, image, (0, 185, 255), [0, 0.25], [0, 10], [0.2, 0.75], 4, 6) #pola
+
 
     return rawData
 
