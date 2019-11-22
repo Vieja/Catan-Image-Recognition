@@ -140,7 +140,7 @@ def identifyPieces(image, pieces_mask, piece_color):
             except cv2.error:  # Za mały kontur aby wpasować elipsę
                 continue
             (x, y), (Ma, ma), angle = ellipse
-            if Ma / ma > 0.5:  # Jeśli osie elipsy są prawie równe mamy okrąg
+            if Ma / ma > 0.8:  # Jeśli osie elipsy są prawie równe mamy okrąg
                 color = pieces_colors[0]
             else:  # Obiekt jest podłużny
                 color = pieces_colors[1]
