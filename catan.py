@@ -121,11 +121,11 @@ def findOrangePieces(data):
 
 def identifyPieces(image, pieces_mask, piece_color):
     if piece_color == 'red':
-        pieces_colors = [(0, 0, 255), (255, 0, 255)]
+        pieces_colors = [(0, 0, 255), (255, 125, 255)]
         limit = 4000 # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
     elif piece_color == 'blue':
         pieces_colors = [(255, 0, 0), (255, 255, 0)]
-        limit = 500
+        limit = 2500
     else:
         pieces_colors = [(0, 110, 255), (80, 165, 255)]
         limit = 3000 # czasem znajduje pomarańcz na polach ze zbożem
@@ -140,11 +140,18 @@ def identifyPieces(image, pieces_mask, piece_color):
             except cv2.error:  # Za mały kontur aby wpasować elipsę
                 continue
             (x, y), (Ma, ma), angle = ellipse
+            M = cv2.moments(hull)
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
             if Ma / ma > 0.8:  # Jeśli osie elipsy są prawie równe mamy okrąg
-                color = pieces_colors[0]
+                cv2.rectangle(image, (cX-35, cY-35), (cX+35, cY+35), pieces_colors[0], -1)
+                cv2.rectangle(image, (cX-30, cY-30), (cX+30, cY+30), pieces_colors[1], -1)
             else:  # Obiekt jest podłużny
-                color = pieces_colors[1]
-            cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
+                diamond = np.array([[[cX - 20, cY], [cX, cY + 30], [cX + 20, cY], [cX, cY - 30]]], np.int32)
+                cv2.fillConvexPoly(image, diamond, pieces_colors[1])
+                cv2.polylines(image, diamond, True, pieces_colors[0], 5)
+
+            # cv2.drawContours(image, [hull], -1, color, cv2.FILLED)
         elif 15000 < hull_area < 50000:  # Jeśli kontur jest za duży, to być może dwa pionki się złączyły
             new_mask = np.zeros(image.shape[:2], dtype=np.uint8)
             new_mask = cv2.drawContours(new_mask, [cont], -1, 255, cv2.FILLED)
