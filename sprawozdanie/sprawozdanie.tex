@@ -65,9 +65,32 @@ na bieżąco są usuwane ze zdjęcia poddawanego przetwarzaniu. W przypadku iden
     \end{figure}
 
     \subsection{Znajdowanie pionków}
+    Poszukiwanie pionków odbywa się dla każdego koloru (czerwonego, niebieskiego i pomarańczowego) z osobna.
+    Za każdym razem poszukujemy pikseli, które należą do określonego obszaru przestrzeni barw HSV.
+    Przykładowo, dla pionków koloru niebieskiego przedziały znormalizowanych wartości H, S i V prezentują się następująco:
+    H = [0.58, 0.69], S = [0.3, 1], V = [0, 0.6].
+    Uzyskana w ten sposób maska zostaje następnie, w zależności od koloru, poddana erozji/dylatacji.
+     \begin{figure}[H]
+        \begin{subfigure}[t]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{pictures/steps/pawns_fragment.png}
+            \subcaption{Fragment obrazu}
+        \end{subfigure}
+%
+        \begin{subfigure}[t]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{pictures/steps/pawns_mask.png}
+            \subcaption{Uzyskana maska}
+        \end{subfigure}
+%
+        \begin{subfigure}[t]{0.3\linewidth}
+            \includegraphics[width=\linewidth]{pictures/steps/pawns_mask_dilated.png}
+            \subcaption{Maska poddana dylatacji}
+        \end{subfigure}
+        \caption{Znajdowanie pionków na obrazie}
+    \end{figure}
+
 
     \subsection{Rozpoznawanie pionków}
-    Na każdej masce uzyskanej w poprzednim kroku szukamy konturów. Dla każdego z nich wyznaczamy otoczkę wypukłą (convex hull), ponieważ pionki wykonane są z błyszczącego plastiku i trudno jest zapewnić, aby w całości były zaznaczone na masce.
+    Na każdej masce, uzyskanej w poprzednim kroku, szukamy konturów. Dla każdego z nich wyznaczamy otoczkę wypukłą (convex hull), ponieważ pionki wykonane są z błyszczącego plastiku i trudno jest zapewnić, aby w całości były zaznaczone na masce.
 
     Następnie w każdą otoczkę, której powierzchnia znajduje się w akceptowalnym przedziale wpasowywana jest elipsa.
     Liczymy stosunek półosi wielkiej do półosi małej elipsy. Dla miast i osad stosunek ten jest bliski 1, natomiast drogi są bardziej podłużne, więc dla nich ten stosunek jest niższy.
@@ -124,12 +147,12 @@ H = [0.15, 0.3], S = [0.4, 1], V = [0.6, 1]
         \label{fig:step4}
     \end{figure}
 	
-	Następnie, w zależności od aktualnie rozważanego typu pola, maska poddawana zostaje dylacji/erozji. Na masce odszukujemy kontury, które następnie sortowane są pod względem pola powierzchni.
+	Następnie, w zależności od aktualnie rozważanego typu pola, maska poddawana zostaje dylatacji/erozji. Na masce odszukujemy kontury, które następnie sortowane są pod względem pola powierzchni.
 	
 Wykorzystujemy fakt, że liczba poszczególnych typów pól na planszy jest stała (są zawsze cztery łąki, trzy pola z górami itd.). Z tego powodu rozważamy jedynie x pierwszych konturów z posortowanej listy.
 Dla każdego z tych konturów znajdowana jest otoczka wypukła (convex hull). Na jej podstawie obliczany jest centroid i wyrysowywana jest kropka reprezentująca dane pole. 
 
-Dodatkowo, otoczki umieszczane są na nowej masce, która jest następnie poddawana dylacji. Tak utworzona maska wycina z przetwarzanego obrazu pola, które zostały już odnalezione. Ma to ułatwić odnajdywanie następnych typów pól.
+Dodatkowo, otoczki umieszczane są na nowej masce, która jest następnie poddawana dylatacji. Tak utworzona maska wycina z przetwarzanego obrazu pola, które zostały już odnalezione. Ma to ułatwić odnajdywanie następnych typów pól.
 	
 Po odnalezieniu łąk w sposób analogiczny lokalizowane są lasy. Przed wyszukiwaniem gór staramy się dodatkowo wyciąć obramowanie pól, aby zminimalizować możliwość odnalezienia konturów w tych miejscach (ze względu na swoją jasność).
 
@@ -187,7 +210,7 @@ Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczają
     \begin{figure}[H]
         \begin{subfigure}[]{\linewidth}
             \includegraphics[width=\linewidth]{pictures/hard1.png}
-            \subcaption{Prześwietlone zdjęcie}
+            \subcaption{Rozbłysk na zdjęciu}
         \end{subfigure}
 
         \caption{Przykłady zdjęć trudnych}
@@ -209,7 +232,7 @@ Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczają
 
         \caption{Rozbłysk na planszy - woda nie zostaje w pełni wycięta, w miejscu rozbłysku
         algorytm znajduje zboże}
-        \label{fig:step6}
+        \label{fig:problem_light}
     \end{figure}
     
     Jeżeli oświetlenie jest odpowiednie, program całkiem dobrze radzi sobie ze zdjęciami zrobionymi pod kątem. Trzeba jednak wziąć pod uwagę sytuację, w których pionki z powodu nachylenia zaczynają stawać się jedną całością, bądź zostały źle postawione, tzn. dotykały się. W niektórych przypadkach erozja jest w stanie rozdzielić takie pionki, w innych nie. Aby wyeliminować ten problem, należałoby zaimplementować o wiele bardziej skomplikowany sposób identyfikacji pionków, bazujący nie tylko na ich kształcie i kolorze, ale także na ich ułożeniu względem heksagonów.
@@ -225,7 +248,7 @@ Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczają
         \end{subfigure}
 
         \caption{Problemy z pionkami}
-        \label{fig:step6}
+        \label{fig:problem_pawns}
     \end{figure}
 
 \end{document}
