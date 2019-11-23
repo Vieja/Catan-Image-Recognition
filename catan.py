@@ -78,8 +78,8 @@ def findRedPieces(data):
     h_new = [0.04 * 180, 0.93 * 180]
     s_new = [0.5 * 255, 1 * 255]
     v_new = [0 * 255, 1 * 255]
-    _, threshold = cv2.threshold(h, h_new[0], 180, cv2.THRESH_BINARY_INV)
-    _, threshold2 = cv2.threshold(h, h_new[1], 180, cv2.THRESH_BINARY)
+    _, threshold = cv2.threshold(h, h_new[0], 255, cv2.THRESH_BINARY_INV)
+    _, threshold2 = cv2.threshold(h, h_new[1], 255, cv2.THRESH_BINARY)
     background1 = cv2.bitwise_xor(threshold, threshold2)
     background2 = thresholdInRange(s, s_new)
     background3 = thresholdInRange(v, v_new)
@@ -117,16 +117,16 @@ def findOrangePieces(data):
     return background
 
 
-def identifyPieces(image, pieces_mask, piece_color):
+def identifyPieces(image, pieces_mask, piece_color, red_limit=4000, blue_limit=2500, orange_limit=3000):
     if piece_color == 'red':
         pieces_colors = [(0, 0, 255), (255, 125, 255)]
-        limit = 4000  # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
+        limit = red_limit  # w przypadku czerwonego koloru nie możemy pozwolić, aby uznawał czerwone cyfry na kółkach jako pionki
     elif piece_color == 'blue':
         pieces_colors = [(255, 0, 0), (255, 255, 0)]
-        limit = 2500
+        limit = blue_limit
     else:
         pieces_colors = [(0, 110, 255), (80, 165, 255)]
-        limit = 3000  # czasem znajduje pomarańcz na polach ze zbożem
+        limit = orange_limit  # czasem znajduje pomarańcz na polach ze zbożem
     contours, hierarchy = cv2.findContours(pieces_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     for i, cont in enumerate(contours):
         hull = cv2.convexHull(cont)
@@ -154,7 +154,7 @@ def identifyPieces(image, pieces_mask, piece_color):
             new_mask = np.zeros(image.shape[:2], dtype=np.uint8)
             new_mask = cv2.drawContours(new_mask, [cont], -1, 255, cv2.FILLED)
             new_mask = cv2.morphologyEx(new_mask, cv2.MORPH_ERODE, np.ones((5, 5), np.uint8))
-            image = identifyPieces(image, new_mask, piece_color)
+            image = identifyPieces(image, new_mask, piece_color, limit-500, limit-500, limit)
     return image
 
 
