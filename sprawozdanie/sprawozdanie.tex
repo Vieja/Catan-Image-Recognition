@@ -2,6 +2,7 @@
 \usepackage[T1]{fontenc} % Polskie znaki
 \usepackage{graphicx} % Wstwianie grafiki
 \usepackage{subcaption}
+\usepackage{float}
 %opening
 \title{Rozpoznawanie stanu rozgrywki w grze planszowej Catan}
 \author{Magdalena Wiechczyńska, \\
@@ -13,13 +14,14 @@ Piotr Tomaszewski, 136821}
 \maketitle
 
 \section{Temat i opis rozwiązania problemu}
+Tematem naszego projektu jest rozpoznawanie stanu rozgrywki w grze planszowej Catan.
 
 \section{Działanie programu}
     \subsection{Znajdowanie planszy}
     Na początku program próbuje ustalić położenie planszy i usunąć wszelkie elementy do niej nienależące.
 
     Wiedząc, że plansza do gry jest zawsze otoczona ramką przedstawiającą wodę, wyszukujemy pikseli, których wartość odcienia (Hue) w przestrzeni HSV należy do odpowiedniego przedziału. Następnie, w celu usunięcia dziur uzyskany obraz poddajemy dylatacji.
-    \begin{figure}[h]
+    \begin{figure}[H]
         \centering
         \begin{subfigure}[t]{.3\linewidth}
         \includegraphics[width=\linewidth]{pictures/steps/find_water.png}
@@ -37,16 +39,16 @@ Piotr Tomaszewski, 136821}
     Na tak przetworzonym obrazie szukamy konturów. Zależy nam na znalezieniu wewnętrznego konturu planszy. Na większości zdjęć jest to drugi kontur pod względem obejmowanego pola powierzchni. Jednak, w przypadku gdy ramka zdjęcia jest prześwietlona, oba konutury łączą się w jeden. Dlatego w celu ustalenia, który kontur jest konturem wewnętrznym sprawdzamy czy na danym zdjęciu drugi pod względem wielkości kontur znajduje się wewnątrz największego.
 
     Następnie zastępujemy kolorem czarnym wszystkie piksele, które nie znajdują się wewnątrz tego konturu.
-    \begin{figure}[h]
-        \begin{subfigure}[t]{0.3\linewidth}
+    \begin{figure}[H]
+        \begin{subfigure}[t]{0.32\linewidth}
             \includegraphics[width=\linewidth]{pictures/steps/two_contours.png}
             \subcaption{Dwa największe kontury}
         \end{subfigure}
-        \begin{subfigure}[t]{0.3\linewidth}
+        \begin{subfigure}[t]{0.32\linewidth}
             \includegraphics[width=\linewidth]{pictures/steps/two_contours_blend.png}
             \subcaption{Kontury łączą się ze sobą}
         \end{subfigure}
-        \begin{subfigure}[t]{0.3\linewidth}
+        \begin{subfigure}[t]{0.32\linewidth}
             \includegraphics[width=\linewidth]{pictures/steps/background_cut.png}
             \subcaption{Wycięte tło}
         \end{subfigure}
@@ -70,9 +72,32 @@ Piotr Tomaszewski, 136821}
       
 \section{Przedstawienie wyników}
     \subsection{Zdjęcia łatwe}
+    \begin{figure}[H]
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/easy1.png}
+            \subcaption{Brak pionków}
+        \end{subfigure}
+
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/easy2.png}
+            \subcaption{Liczby na planszy}
+        \end{subfigure}
+        \caption{Przykłady zdjęć łatwych}
+        \label{fig:step1}
+    \end{figure}
+    
     \subsection{Zdjęcia średnie}
     \subsection{Zdjęcia trudne}
-\section{Podsumowanie wyników}
+    \begin{figure}[H]
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/hard1.png}
+            \subcaption{Prześwietlone zdjęcie}
+        \end{subfigure}
 
+        \caption{Przykłady zdjęć łatwych}
+        \label{fig:step1}
+    \end{figure}
+\section{Podsumowanie wyników}
+.
 
 \end{document}
