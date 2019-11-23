@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2019.11.23)  23 NOV 2019 20:19
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2019.11.23)  23 NOV 2019 20:30
 entering extended mode
 **./sprawozdanie.tex
 (sprawozdanie.tex
@@ -81,15 +81,6 @@ Package caption3 Info: TeX engine: e-TeX on input line 64.
 \c@subfigure=\count90
 \c@subtable=\count91
 ) (sprawozdanie.aux
-
-LaTeX Warning: Label `fig:step1' multiply defined.
-
-
-LaTeX Warning: Label `fig:step1' multiply defined.
-
-
-LaTeX Warning: Label `fig:step1' multiply defined.
-
 
 LaTeX Warning: Label `fig:step1' multiply defined.
 
@@ -200,89 +191,117 @@ orysty-cznie koniecznym
 <pictures/steps/find_water.png, id=1, 584.1825pt x 773.89125pt>
 File: pictures/steps/find_water.png Graphic file (type png)
 <use pictures/steps/find_water.png>
-Package pdftex.def Info: pictures/steps/find_water.png  used on input line 34.
-(pdftex.def)             Requested size: 172.5pt x 228.5203pt.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 37.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 37.
+Package pdftex.def Info: pictures/steps/find_water.png  used on input line 35.
+(pdftex.def)             Requested size: 103.50105pt x 137.10982pt.
 <pictures/steps/find_water_dilate.png, id=2, 582.67688pt x 774.64406pt>
 File: pictures/steps/find_water_dilate.png Graphic file (type png)
 <use pictures/steps/find_water_dilate.png>
 Package pdftex.def Info: pictures/steps/find_water_dilate.png  used on input li
 ne 39.
-(pdftex.def)             Requested size: 172.5pt x 229.32178pt.
-
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 33--42
-[]$[]$ $[]$ 
- []
-
+(pdftex.def)             Requested size: 103.50105pt x 137.5978pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
+
+<pictures/steps/two_contours.png, id=3, 581.92406pt x 772.38562pt>
+File: pictures/steps/two_contours.png Graphic file (type png)
+<use pictures/steps/two_contours.png>
+Package pdftex.def Info: pictures/steps/two_contours.png  used on input line 52
+.
+(pdftex.def)             Requested size: 103.50105pt x 137.37341pt.
+<pictures/steps/two_contours_blend.png, id=4, 598.48593pt x 789.75464pt>
+File: pictures/steps/two_contours_blend.png Graphic file (type png)
+<use pictures/steps/two_contours_blend.png>
+Package pdftex.def Info: pictures/steps/two_contours_blend.png  used on input l
+ine 56.
+(pdftex.def)             Requested size: 103.50105pt x 136.57024pt.
+<pictures/steps/background_cut.png, id=5, 579.66562pt x 773.13844pt>
+File: pictures/steps/background_cut.png Graphic file (type png)
+<use pictures/steps/background_cut.png>
+Package pdftex.def Info: pictures/steps/background_cut.png  used on input line 
+60.
+(pdftex.def)             Requested size: 103.50105pt x 138.03818pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (0.48972pt too wide) in paragraph at lines 70--71
+\T1/cmr/m/n/10 Na ka»dej ma-sce uzyskanej w poprzed-nim kroku szukamy kon-turów
+. Dla ka»dego
+ []
 
 [1
 
-{C:/Users/Vieja/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-<pictures/fields/pre_blur.png, id=12, 165.9801pt x 161.1621pt>
+{C:/Users/Vieja/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}] [2 <./pictu
+res/steps/find_water.png (PNG copy)> <./pictures/steps/find_water_dilate.png (P
+NG copy)> <./pictures/steps/two_contours.png (PNG copy)> <./pictures/steps/two_
+contours_blend.png (PNG copy)> <./pictures/steps/background_cut.png (PNG copy)>
+]
+Overfull \hbox (5.16815pt too wide) in paragraph at lines 77--78
+[]\T1/cmr/m/n/10 Dla ka»dego zi-den-ty-fikowanego pi-o-nka wyz-naczany jest cen
+-troid, który nast¦p-
+ []
+
+<pictures/fields/pre_blur.png, id=19, 165.9801pt x 161.1621pt>
 File: pictures/fields/pre_blur.png Graphic file (type png)
 <use pictures/fields/pre_blur.png>
-Package pdftex.def Info: pictures/fields/pre_blur.png  used on input line 58.
+Package pdftex.def Info: pictures/fields/pre_blur.png  used on input line 84.
 (pdftex.def)             Requested size: 172.5pt x 167.50133pt.
-<pictures/fields/after_blur.png, id=14, 165.9801pt x 161.1621pt>
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 87.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 87.
+<pictures/fields/after_blur.png, id=21, 165.9801pt x 161.1621pt>
 File: pictures/fields/after_blur.png Graphic file (type png)
 <use pictures/fields/after_blur.png>
-Package pdftex.def Info: pictures/fields/after_blur.png  used on input line 63.
+Package pdftex.def Info: pictures/fields/after_blur.png  used on input line 89.
 
 (pdftex.def)             Requested size: 172.5pt x 167.50133pt.
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 57--66
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 83--92
 []$[]$ $[]$ 
  []
 
 
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Overfull \hbox (5.84732pt too wide) in paragraph at lines 71--72
+Overfull \hbox (5.84732pt too wide) in paragraph at lines 97--98
 \T1/cmr/m/n/10 cami. Dokonu-jemy se-lekcji pik-seli na pod-stawie ich warto±ci 
 H, S i V (sprawdzamy
  []
 
 
-Overfull \hbox (15.52673pt too wide) in paragraph at lines 73--74
+Overfull \hbox (15.52673pt too wide) in paragraph at lines 99--100
 []\T1/cmr/m/n/10 Przykªadowo, oto przedzi-aªy znor-mal-i-zowanych warto±ci H, S
 , V, które lokalizuj¡
  []
 
-<pictures/fields/pre_mask.png, id=15, 205.4877pt x 169.1118pt>
+<pictures/fields/pre_mask.png, id=22, 205.4877pt x 169.1118pt>
 File: pictures/fields/pre_mask.png Graphic file (type png)
 <use pictures/fields/pre_mask.png>
-Package pdftex.def Info: pictures/fields/pre_mask.png  used on input line 80.
+Package pdftex.def Info: pictures/fields/pre_mask.png  used on input line 106.
 (pdftex.def)             Requested size: 172.5pt x 141.9652pt.
-<pictures/fields/after_mask.png, id=16, 205.4877pt x 169.1118pt>
+<pictures/fields/after_mask.png, id=23, 205.4877pt x 169.1118pt>
 File: pictures/fields/after_mask.png Graphic file (type png)
 <use pictures/fields/after_mask.png>
-Package pdftex.def Info: pictures/fields/after_mask.png  used on input line 85.
-
+Package pdftex.def Info: pictures/fields/after_mask.png  used on input line 111
+.
 (pdftex.def)             Requested size: 172.5pt x 141.9652pt.
-<pictures/fields/convex.png, id=17, 205.4877pt x 169.1118pt>
+<pictures/fields/convex.png, id=24, 205.4877pt x 169.1118pt>
 File: pictures/fields/convex.png Graphic file (type png)
 <use pictures/fields/convex.png>
-Package pdftex.def Info: pictures/fields/convex.png  used on input line 89.
+Package pdftex.def Info: pictures/fields/convex.png  used on input line 115.
 (pdftex.def)             Requested size: 172.5pt x 141.9652pt.
-<pictures/fields/delete_convex.png, id=18, 205.4877pt x 169.1118pt>
+<pictures/fields/delete_convex.png, id=25, 205.4877pt x 169.1118pt>
 File: pictures/fields/delete_convex.png Graphic file (type png)
 <use pictures/fields/delete_convex.png>
 Package pdftex.def Info: pictures/fields/delete_convex.png  used on input line 
-94.
+120.
 (pdftex.def)             Requested size: 172.5pt x 141.9652pt.
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 79--97
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 105--123
 []$[]$ $[]$
  []
 
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 79--97
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 105--123
 []$ $[]$ 
  []
 
@@ -290,74 +309,72 @@ Overfull \hbox (2.22168pt too wide) in paragraph at lines 79--97
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 
-Overfull \hbox (4.7109pt too wide) in paragraph at lines 103--105
+Overfull \hbox (4.7109pt too wide) in paragraph at lines 129--131
 \T1/cmr/m/n/10 turów zna-j-dowana jest otoczka wy-pukªa (con-vex hull). Na jej 
 pod-stawie obliczany
  []
 
 
-Overfull \hbox (5.43661pt too wide) in paragraph at lines 108--109
+Overfull \hbox (5.43661pt too wide) in paragraph at lines 134--135
 []\T1/cmr/m/n/10 Po odnalezie-niu ª¡k w sposób ana-log-iczny lokali-zowane s¡ l
 asy. Przed wyszuki-
  []
 
-[2 <./pictures/steps/find_water.png (PNG copy)> <./pictures/steps/find_water_di
-late.png (PNG copy)>]
-<pictures/fields/pre_cut.png, id=23, 178.5069pt x 152.4897pt>
+<pictures/fields/pre_cut.png, id=26, 178.5069pt x 152.4897pt>
 File: pictures/fields/pre_cut.png Graphic file (type png)
 <use pictures/fields/pre_cut.png>
-Package pdftex.def Info: pictures/fields/pre_cut.png  used on input line 112.
+Package pdftex.def Info: pictures/fields/pre_cut.png  used on input line 138.
 (pdftex.def)             Requested size: 172.5pt x 147.36337pt.
-<pictures/fields/after_cut.png, id=24, 178.5069pt x 152.4897pt>
+<pictures/fields/after_cut.png, id=27, 178.5069pt x 152.4897pt>
 File: pictures/fields/after_cut.png Graphic file (type png)
 <use pictures/fields/after_cut.png>
-Package pdftex.def Info: pictures/fields/after_cut.png  used on input line 117.
+Package pdftex.def Info: pictures/fields/after_cut.png  used on input line 143.
 
 (pdftex.def)             Requested size: 172.5pt x 147.36337pt.
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 111--120
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 137--146
 []$[]$ $[]$ 
  []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<pictures/fields/pre_sat.png, id=25, 176.0979pt x 159.7167pt>
-File: pictures/fields/pre_sat.png Graphic file (type png)
-<use pictures/fields/pre_sat.png>
-Package pdftex.def Info: pictures/fields/pre_sat.png  used on input line 129.
-(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
-<pictures/fields/after_sat.png, id=26, 176.0979pt x 159.7167pt>
-File: pictures/fields/after_sat.png Graphic file (type png)
-<use pictures/fields/after_sat.png>
-Package pdftex.def Info: pictures/fields/after_sat.png  used on input line 134.
-
-(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
-
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 128--137
-[]$[]$ $[]$ 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
 
 [3 <./pictures/fields/pre_blur.png> <./pictures/fields/after_blur.png>]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<pictures/fields/pre_sat.png, id=33, 176.0979pt x 159.7167pt>
+File: pictures/fields/pre_sat.png Graphic file (type png)
+<use pictures/fields/pre_sat.png>
+Package pdftex.def Info: pictures/fields/pre_sat.png  used on input line 155.
+(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
+<pictures/fields/after_sat.png, id=34, 176.0979pt x 159.7167pt>
+File: pictures/fields/after_sat.png Graphic file (type png)
+<use pictures/fields/after_sat.png>
+Package pdftex.def Info: pictures/fields/after_sat.png  used on input line 160.
+
+(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 154--163
+[]$[]$ $[]$ 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 [4 <./pictures/fields/pre_mask.png> <./pictures/fields/after_mask.png> <./pictu
-res/fields/convex.png> <./pictures/fields/delete_convex.png> <./pictures/fields
-/pre_cut.png> <./pictures/fields/after_cut.png>] [5 <./pictures/fields/pre_sat.
+res/fields/convex.png> <./pictures/fields/delete_convex.png>] [5 <./pictures/fi
+elds/pre_cut.png> <./pictures/fields/after_cut.png> <./pictures/fields/pre_sat.
 png> <./pictures/fields/after_sat.png>] (sprawozdanie.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2995 strings out of 492450
- 47844 string characters out of 3120004
- 112594 words of memory out of 3000000
- 7332 multiletter control sequences out of 15000+200000
+ 3013 strings out of 492450
+ 48462 string characters out of 3120004
+ 112626 words of memory out of 3000000
+ 7347 multiletter control sequences out of 15000+200000
  11755 words of font info for 30 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,8n,46p,569b,443s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 55i,8n,46p,569b,455s stack positions out of 5000i,500n,10000p,200000b,50000s
  <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\
 ecrm0900.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/
 ec/dpi600\ecbx1200.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour
@@ -365,9 +382,9 @@ ec/dpi600\ecbx1200.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour
 /pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\Vieja\AppData\Local\MiKTeX
 \2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Vieja\AppData\Lo
 cal\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk>
-Output written on sprawozdanie.pdf (5 pages, 3941756 bytes).
+Output written on sprawozdanie.pdf (5 pages, 7606013 bytes).
 PDF statistics:
- 271 PDF objects out of 1000 (max. 8388607)
+ 280 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 61 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 76 words of extra memory for PDF output out of 10000 (max. 10000000)
 
