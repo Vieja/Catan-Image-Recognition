@@ -2,6 +2,7 @@
 \usepackage[T1]{fontenc} % Polskie znaki
 \usepackage{graphicx} % Wstwianie grafiki
 \usepackage{subcaption}
+\usepackage{float}
 %opening
 \title{Rozpoznawanie stanu rozgrywki w grze planszowej Catan}
 \author{Magdalena Wiechczyńska, 132337\\
@@ -29,7 +30,7 @@ kształtu do koła (miasta mają okrągłą podstawę).
      Na początku program próbuje ustalić położenie planszy i usunąć wszelkie elementy do niej nienależące.
 
     Wiedząc, że plansza do gry jest zawsze otoczona ramką przedstawiającą wodę, wyszukujemy pikseli, których wartość odcienia (Hue) w przestrzeni HSV należy do odpowiedniego przedziału. Następnie, w celu usunięcia dziur uzyskany obraz poddajemy dylatacji.
-    \begin{figure}[h]
+    \begin{figure}[H]
         \centering
         \begin{subfigure}[t]{.3\linewidth}
         \includegraphics[width=\linewidth]{pictures/steps/find_water.png}
@@ -47,7 +48,7 @@ kształtu do koła (miasta mają okrągłą podstawę).
     Na tak przetworzonym obrazie szukamy konturów. Zależy nam na znalezieniu wewnętrznego konturu planszy. Na większości zdjęć jest to drugi kontur pod względem obejmowanego pola powierzchni. Jednak, w przypadku gdy ramka zdjęcia jest prześwietlona, oba konutury łączą się w jeden. Dlatego w celu ustalenia, który kontur jest konturem wewnętrznym sprawdzamy czy na danym zdjęciu drugi pod względem wielkości kontur znajduje się wewnątrz największego.
 
     Następnie zastępujemy kolorem czarnym wszystkie piksele, które nie znajdują się wewnątrz tego konturu.
-    \begin{figure}[h]
+    \begin{figure}[H]
         \begin{subfigure}[t]{0.3\linewidth}
             \includegraphics[width=\linewidth]{pictures/steps/two_contours.png}
             \subcaption{Dwa największe kontury}
@@ -79,7 +80,7 @@ kształtu do koła (miasta mają okrągłą podstawę).
     \subsection{Znajdowanie i rozpoznawanie pól}
     W pierwszej kolejności stosujemy filtr medianowy z maską 15x15. Sprawi to, że kolory zostaną wygładzone i staną się mniej różnorodne w obrębie poszczególnych pól.
     
-    \begin{figure}[h]
+    \begin{figure}[H]
         \begin{subfigure}[]{.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/fields/pre_blur.png}
         \subcaption{Plansza przed nałożeniem filtru}
@@ -100,7 +101,7 @@ kształtu do koła (miasta mają okrągłą podstawę).
     
 H = [0.15, 0.3], S = [0.4, 1], V = [0.6, 1] 
 	
-	\begin{figure}[h]
+	\begin{figure}[H]
 		
         \begin{subfigure}[]{.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/fields/pre_mask.png}
@@ -133,7 +134,7 @@ Dodatkowo, otoczki umieszczane są na nowej masce, która jest następnie poddaw
 	
 Po odnalezieniu łąk w sposób analogiczny lokalizowane są lasy. Przed wyszukiwaniem gór staramy się dodatkowo wyciąć obramowanie pól, aby zminimalizować możliwość odnalezienia konturów w tych miejscach (ze względu na swoją jasność).
 
-	\begin{figure}[h]
+	\begin{figure}[H]
         \begin{subfigure}[]{.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/fields/pre_cut.png}
         \subcaption{Zdjęcie po usunięciu lasów}
@@ -150,7 +151,7 @@ Po odnalezieniu łąk w sposób analogiczny lokalizowane są lasy. Przed wyszuki
 	
 Ostatnie pola do identyfikacji są zdecydowanie trudniejsze, ze względu na podobieństwo kolorystyczne, jednak po zastosowaniu 5-krotnego skalowania saturacji obrazu glina wystarczająco wyróżnia się na tle pozostałych pól, aby móc z powodzeniem wykorzystać wyżej przedstawiony algorytm.
 
-	\begin{figure}[h]
+	\begin{figure}[H]
         \begin{subfigure}[]{.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/fields/pre_sat.png}
         \subcaption{Przed}
