@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1574521408 "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex" "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf" "sprawozdanie" 1574521409
-  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux" 1574521409 1545 801d735a7fc7031ba1b5cf6877bff68c ""
-  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex" 1574521408 2125 e38a47274d8951b04dff868fa894369a ""
+["pdflatex"] 1574529322 "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex" "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf" "sprawozdanie" 1574529322
+  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux" 1574529322 1703 de2c92f4f77dcd0f7b53f7a0c80b8a06 ""
+  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex" 1574529322 4047 ff8d27aaee1aef6abae8c5b7e18663e0 ""
   "/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1557554374 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1557554374 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/share/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm" 1557554374 3584 402da0b29eafbad07963b1224b222f18 ""
@@ -55,13 +55,16 @@
   "/usr/share/texmf-dist/web2c/texmf.cnf" 1557554374 33301 a3134070eacafb10b1f371612ce2650d ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1566644795 3106380 436fef8c2e0ca660ce1dd89198cfa583 ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1566644785 7979416 64c161ba4ef180cbe1f511acd8b604c6 ""
+  "pictures/steps/background_cut.png" 1574522240 423956 0179265713dd024ed2e14210ce256897 ""
   "pictures/steps/find_water.png" 1574518779 15093 20f3346eb7e816066afdbecfefd960d6 ""
   "pictures/steps/find_water_dilate.png" 1574518803 14544 d2cf70c52fe37c6eabed76791c3ed3c6 ""
-  "sprawozdanie.aux" 1574521409 1545 801d735a7fc7031ba1b5cf6877bff68c "pdflatex"
-  "sprawozdanie.tex" 1574521408 2125 e38a47274d8951b04dff868fa894369a ""
+  "pictures/steps/two_contours.png" 1574522212 1507756 e5b9ff44116fcc2e71208642f9712134 ""
+  "pictures/steps/two_contours_blend.png" 1574528004 1733998 5f7cabfaf7f7f69642154002da96db87 ""
+  "sprawozdanie.aux" 1574529322 1703 de2c92f4f77dcd0f7b53f7a0c80b8a06 "pdflatex"
+  "sprawozdanie.tex" 1574529322 4047 ff8d27aaee1aef6abae8c5b7e18663e0 ""
   (generated)
   "sprawozdanie.log"
-  "sprawozdanie.aux"
-  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.log"
-  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf"
   "sprawozdanie.pdf"
+  "sprawozdanie.aux"
+  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf"
+  "/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.log"

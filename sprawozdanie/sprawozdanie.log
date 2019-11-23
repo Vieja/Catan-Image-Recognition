@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.8.24)  23 NOV 2019 16:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.8.24)  23 NOV 2019 18:15
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -65,7 +65,11 @@ Package caption3 Info: TeX engine: e-TeX on input line 64.
 )
 \c@subfigure=\count90
 \c@subtable=\count91
-) (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux)
+) (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux
+
+LaTeX Warning: Label `fig:step1' multiply defined.
+
+)
 \openout1 = `sprawozdanie.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
@@ -140,38 +144,62 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 <pictures/steps/find_water.png, id=1, 584.1825pt x 773.89125pt>
 File: pictures/steps/find_water.png Graphic file (type png)
 <use pictures/steps/find_water.png>
-Package pdftex.def Info: pictures/steps/find_water.png  used on input line 24.
-(pdftex.def)             Requested size: 172.5pt x 228.5203pt.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 27.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 27.
+Package pdftex.def Info: pictures/steps/find_water.png  used on input line 25.
+(pdftex.def)             Requested size: 103.50105pt x 137.10982pt.
 <pictures/steps/find_water_dilate.png, id=2, 582.67688pt x 774.64406pt>
 File: pictures/steps/find_water_dilate.png Graphic file (type png)
 <use pictures/steps/find_water_dilate.png>
 Package pdftex.def Info: pictures/steps/find_water_dilate.png  used on input line 29.
-(pdftex.def)             Requested size: 172.5pt x 229.32178pt.
+(pdftex.def)             Requested size: 103.50105pt x 137.5978pt.
+<pictures/steps/two_contours.png, id=3, 581.92406pt x 772.38562pt>
+File: pictures/steps/two_contours.png Graphic file (type png)
+<use pictures/steps/two_contours.png>
+Package pdftex.def Info: pictures/steps/two_contours.png  used on input line 42.
+(pdftex.def)             Requested size: 103.50105pt x 137.37341pt.
+<pictures/steps/two_contours_blend.png, id=4, 598.48593pt x 789.75464pt>
+File: pictures/steps/two_contours_blend.png Graphic file (type png)
+<use pictures/steps/two_contours_blend.png>
+Package pdftex.def Info: pictures/steps/two_contours_blend.png  used on input line 46.
+(pdftex.def)             Requested size: 103.50105pt x 136.57024pt.
+<pictures/steps/background_cut.png, id=5, 579.66562pt x 773.13844pt>
+File: pictures/steps/background_cut.png Graphic file (type png)
+<use pictures/steps/background_cut.png>
+Package pdftex.def Info: pictures/steps/background_cut.png  used on input line 50.
+(pdftex.def)             Requested size: 103.50105pt x 138.03818pt.
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 23--32
-[]$[]$ $[]$ 
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (0.48972pt too wide) in paragraph at lines 60--61
+\T1/cmr/m/n/10 Na ka»dej ma-sce uzyskanej w poprzed-nim kroku szukamy kon-turów. Dla ka»dego
  []
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water.png (PNG copy)> </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water_dilate.png (PNG copy)>] [2] (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux) ) 
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water.png (PNG copy)> </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water_dilate.png (PNG copy)>]
+Overfull \hbox (5.16815pt too wide) in paragraph at lines 67--68
+[]\T1/cmr/m/n/10 Dla ka»dego zi-den-ty-fikowanego pi-o-nka wyz-naczany jest cen-troid, który nast¦p-
+ []
+
+[2 </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/two_contours.png (PNG copy)> </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/two_contours_blend.png (PNG copy)> </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/background_cut.png (PNG copy)>] (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2830 strings out of 492623
- 43834 string characters out of 6135669
- 106145 words of memory out of 5000000
- 6730 multiletter control sequences out of 15000+600000
+ 2843 strings out of 492623
+ 44323 string characters out of 6135669
+ 108184 words of memory out of 5000000
+ 6740 multiletter control sequences out of 15000+600000
  11755 words of font info for 30 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,8n,40p,636b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,8n,40p,592b,454s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb>
-Output written on /home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf (2 pages, 130608 bytes).
+Output written on /home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf (2 pages, 3795961 bytes).
 PDF statistics:
- 38 PDF objects out of 1000 (max. 8388607)
+ 41 PDF objects out of 1000 (max. 8388607)
  25 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 26 words of extra memory for PDF output out of 10000 (max. 10000000)
 
