@@ -65,7 +65,7 @@ na bieżąco są usuwane ze zdjęcia poddawanego przetwarzaniu. W przypadku iden
     \end{figure}
 
     \subsection{Znajdowanie pionków}
-    Poszukiwanie pionków odbywa się dla każdego koloru (czerwonego, niebieskiego i pomarańczowego) z osobna.
+       Poszukiwanie pionków odbywa się dla każdego koloru (czerwonego, niebieskiego i pomarańczowego) z osobna.
     Za każdym razem poszukujemy pikseli, które należą do określonego obszaru przestrzeni barw HSV.
     Przykładowo, dla pionków koloru niebieskiego przedziały znormalizowanych wartości H, S i V prezentują się następująco:
     H = [0.58, 0.69], S = [0.3, 1], V = [0, 0.6].
@@ -87,7 +87,6 @@ na bieżąco są usuwane ze zdjęcia poddawanego przetwarzaniu. W przypadku iden
         \end{subfigure}
         \caption{Znajdowanie pionków na obrazie}
     \end{figure}
-
 
     \subsection{Rozpoznawanie pionków}
     Na każdej masce, uzyskanej w poprzednim kroku, szukamy konturów. Dla każdego z nich wyznaczamy otoczkę wypukłą (convex hull), ponieważ pionki wykonane są z błyszczącego plastiku i trudno jest zapewnić, aby w całości były zaznaczone na masce.
@@ -188,34 +187,74 @@ Ostatnie pola do identyfikacji są zdecydowanie trudniejsze, ze względu na podo
         \label{fig:step6}
     \end{figure}
 	
-Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczającym rozwiązaniem - delikatna różnica w oświetleniu pól może zaważyć o wyniku działania programu. W tym celu wykorzystywany jest fakt, że na pustyni nigdy nie znajdzie się okrągły krążek z cyfrą, z racji tego, że pustynia reprezentuje brak surowca. Z tego powodu za jednym razem znajdujemy wszystkie pięć pozostałych w grze pól (cztery pola ze zbożem i pustynia) oraz uznajemy za pustynię ten kontur, dla którego pole powierzchni jest największe.
+Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczającym rozwiązaniem - delikatna różnica w oświetleniu pól może zaważyć o wyniku działania programu. W tym celu wykorzystywany jest fakt, że na pustyni nigdy nie znajdzie się okrągły krążek z liczbą, z racji tego, że pustynia reprezentuje brak surowca. Z tego powodu za jednym razem znajdujemy wszystkie pięć pozostałych w grze pól (cztery pola ze zbożem i pustynia) oraz uznajemy za pustynię ten kontur, dla którego pole powierzchni jest największe.
       
 \section{Przedstawienie wyników}
     \subsection{Zdjęcia łatwe}
+    
      \begin{figure}[H]
         \begin{subfigure}[]{\linewidth}
             \includegraphics[width=\linewidth]{pictures/easy1.png}
-            \subcaption{Brak pionków}
+            \subcaption{Brak pionków i liczb}
         \end{subfigure}
 
         \begin{subfigure}[]{\linewidth}
             \includegraphics[width=\linewidth]{pictures/easy2.png}
-            \subcaption{Liczby na planszy}
+            \subcaption{Liczby na planszy (brak pionków graczy)}
         \end{subfigure}
+        
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/results/result04.png}
+            \subcaption{Kąt prostopadły, bardzo dobre oświetlenie}
+        \end{subfigure}
+        
+        
         \caption{Przykłady zdjęć łatwych}
         \label{fig:easy}
     \end{figure}
+    
     \subsection{Zdjęcia średnie}
+    
+    \begin{figure}[H]
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/results/result19.png}
+            \subcaption{Zdjęcie pod kątem}
+        \end{subfigure}
+
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/results/result21.png}
+            \subcaption{Zdjęcie niewyraźne, poruszone}
+        \end{subfigure}
+        
+        
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/results/result11.png}
+            \subcaption{Wiele dodatkowych obiektów w tle}
+        \end{subfigure}
+        
+        
+        
+        \caption{Przykłady zdjęć średnich}
+        \label{fig:easy}
+    \end{figure}
+    
     \subsection{Zdjęcia trudne}
+    
     \begin{figure}[H]
         \begin{subfigure}[]{\linewidth}
             \includegraphics[width=\linewidth]{pictures/hard1.png}
             \subcaption{Rozbłysk na zdjęciu}
         \end{subfigure}
+        
+        \begin{subfigure}[]{\linewidth}
+            \includegraphics[width=\linewidth]{pictures/results/result03.png}
+            \subcaption{Niewystarczająco doświetlone zdjęcie}
+        \end{subfigure}
 
         \caption{Przykłady zdjęć trudnych}
         \label{fig:hard}
     \end{figure}
+    
 \section{Podsumowanie wyników}
 	Program jest w bardzo małym stopniu wrażliwy na obecność dodatkowych elementów na zdjęciu. Krytycznie istotna jest kwestia oświetlenia - mocne rozbłyski, światło pod zbyt ostrym kątem (cienie) oraz nierównomierne i zbyt słabe oświetlenie mogą zaburzyć uzyskiwane wyniki. 
 	
@@ -235,7 +274,7 @@ Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczają
         \label{fig:problem_light}
     \end{figure}
     
-    Jeżeli oświetlenie jest odpowiednie, program całkiem dobrze radzi sobie ze zdjęciami zrobionymi pod kątem. Trzeba jednak wziąć pod uwagę sytuacje, w których pionki z powodu nachylenia zaczynają stawać się jedną całością, bądź zostały źle postawione, tzn. dotykały się. W niektórych przypadkach erozja jest w stanie rozdzielić takie pionki, w innych nie. Aby wyeliminować ten problem, należałoby zaimplementować o wiele bardziej skomplikowany sposób identyfikacji pionków, bazujący nie tylko na ich kształcie i kolorze, ale także na ich ułożeniu względem heksagonów.
+    Jeżeli oświetlenie jest odpowiednie, program całkiem dobrze radzi sobie ze zdjęciami zrobionymi pod kątem. Trzeba jednak wziąć pod uwagę sytuację, w których pionki z powodu nachylenia zaczynają stawać się jedną całością, bądź zostały źle postawione, tzn. dotykały się. W niektórych przypadkach erozja jest w stanie rozdzielić takie pionki, w innych nie. Aby wyeliminować ten problem, należałoby zaimplementować o wiele bardziej skomplikowany sposób identyfikacji pionków, bazujący nie tylko na ich kształcie i kolorze, ale także na ich ułożeniu względem heksagonów.
 		\begin{figure}[H]
         \begin{subfigure}[]{0.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/fields/angle.png}
