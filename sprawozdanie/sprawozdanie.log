@@ -1,15 +1,12 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.8.24)  23 NOV 2019 16:03
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7250 64-bit) (preloaded format=pdflatex 2019.11.23)  23 NOV 2019 20:19
 entering extended mode
- restricted \write18 enabled.
- file:line:error style messages enabled.
- %&-line parsing enabled.
-**/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex
-(/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.tex
-LaTeX2e <2018-12-01>
-(/usr/share/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2018/09/03 v1.4i Standard LaTeX document class
-(/usr/share/texmf-dist/tex/latex/base/size10.clo
-File: size10.clo 2018/09/03 v1.4i Standard LaTeX file (size option)
+**./sprawozdanie.tex
+(sprawozdanie.tex
+LaTeX2e <2019-10-01> patch level 3
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\article.cls"
+Document Class: article 2019/10/25 v1.4k Standard LaTeX document class
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\size10.clo"
+File: size10.clo 2019/10/25 v1.4k Standard LaTeX file (size option)
 )
 \c@part=\count80
 \c@section=\count81
@@ -22,35 +19,53 @@ File: size10.clo 2018/09/03 v1.4i Standard LaTeX file (size option)
 \abovecaptionskip=\skip41
 \belowcaptionskip=\skip42
 \bibindent=\dimen102
-) (/usr/share/texmf-dist/tex/latex/base/fontenc.sty
+) ("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\fontenc.sty
+"
 Package: fontenc 2018/08/11 v2.0j Standard LaTeX package
- (/usr/share/texmf-dist/tex/latex/base/t1enc.def
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/base\t1enc.def"
 File: t1enc.def 2018/08/11 v2.0j Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
-)) (/usr/share/texmf-dist/tex/latex/graphics/graphicx.sty
+))
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics\graphicx.
+sty"
 Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
- (/usr/share/texmf-dist/tex/latex/graphics/keyval.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics\keyval.st
+y"
 Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
 \KV@toks@=\toks14
-) (/usr/share/texmf-dist/tex/latex/graphics/graphics.sty
-Package: graphics 2017/06/25 v1.2c Standard LaTeX Graphics (DPC,SPQR)
- (/usr/share/texmf-dist/tex/latex/graphics/trig.sty
+)
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics\graphics.
+sty"
+Package: graphics 2019/11/01 v1.3d Standard LaTeX Graphics (DPC,SPQR)
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics\trig.sty"
 Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
-) (/usr/share/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+)
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics-cfg\graph
+ics.cfg"
 File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
 )
-Package graphics Info: Driver file: pdftex.def on input line 99.
- (/usr/share/texmf-dist/tex/latex/graphics-def/pdftex.def
+Package graphics Info: Driver file: pdftex.def on input line 105.
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/graphics-def\pdfte
+x.def"
 File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
 ))
 \Gin@req@height=\dimen103
 \Gin@req@width=\dimen104
-) (/usr/share/texmf-dist/tex/latex/caption/subcaption.sty
-Package: subcaption 2018/05/01 v1.1-162 Sub-captions (AR)
- (/usr/share/texmf-dist/tex/latex/caption/caption.sty
-Package: caption 2018/10/06 v3.3-154 Customizing captions (AR)
- (/usr/share/texmf-dist/tex/latex/caption/caption3.sty
-Package: caption3 2018/09/12 v1.8c caption3 kernel (AR)
+)
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/caption\subcaption
+.sty"
+Package: subcaption 2019/09/01 v1.3a Sub-captions (AR)
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/caption\caption.st
+y"
+Package: caption 2019/09/01 v3.3d Customizing captions (AR)
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/caption\caption3.s
+ty"
+Package: caption3 2019/09/01 v1.8d caption3 kernel (AR)
 Package caption3 Info: TeX engine: e-TeX on input line 64.
 \captionmargin=\dimen105
 \captionmargin@=\dimen106
@@ -65,7 +80,20 @@ Package caption3 Info: TeX engine: e-TeX on input line 64.
 )
 \c@subfigure=\count90
 \c@subtable=\count91
-) (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux)
+) (sprawozdanie.aux
+
+LaTeX Warning: Label `fig:step1' multiply defined.
+
+
+LaTeX Warning: Label `fig:step1' multiply defined.
+
+
+LaTeX Warning: Label `fig:step1' multiply defined.
+
+
+LaTeX Warning: Label `fig:step1' multiply defined.
+
+)
 \openout1 = `sprawozdanie.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 11.
@@ -80,7 +108,9 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 11.
 LaTeX Font Info:    ... okay on input line 11.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 11.
 LaTeX Font Info:    ... okay on input line 11.
- (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/context/base/mkii\supp-p
+df.mkii"
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count92
 \scratchdimen=\dimen112
@@ -93,42 +123,66 @@ LaTeX Font Info:    ... okay on input line 11.
 \MPnumerator=\count96
 \makeMPintoPDFobject=\count97
 \everyMPtoPDFconversion=\toks16
-) (/usr/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+)
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\epstopdf-
+base.sty"
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
- (/usr/share/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\infware
+rr.sty"
 Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
-) (/usr/share/texmf-dist/tex/latex/oberdiek/grfext.sty
+)
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\grfext.st
+y"
 Package: grfext 2016/05/16 v1.2 Manage graphics extensions (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\kvdefin
+ekeys.sty"
 Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\ltxcmds
+.sty"
 Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
-))) (/usr/share/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+)))
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/latex/oberdiek\kvoptions
+.sty"
 Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\kvsetke
+ys.sty"
 Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\etexcmd
+s.sty"
 Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/ifluatex.sty
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-)))) (/usr/share/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
-Package: pdftexcmds 2018/09/10 v0.29 Utility functions of pdfTeX for LuaTeX (HO)
- (/usr/share/texmf-dist/tex/generic/oberdiek/ifpdf.sty
-Package: ifpdf 2018/09/07 v3.3 Provides the ifpdf switch
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/iftex\ifluatex.s
+ty"
+Package: ifluatex 2019/10/25 v1.5 ifluatex legacy package. Use iftex instead.
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/iftex\iftex.sty"
+Package: iftex 2019/11/07 v1.0c TeX engine tests
+)))))
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/oberdiek\pdftexc
+mds.sty"
+Package: pdftexcmds 2019/07/25 v0.30 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+("C:\Users\Vieja\AppData\Local\Programs\MiKTeX 2.9\tex/generic/iftex\ifpdf.sty"
+Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
 )
 Package pdftexcmds Info: LuaTeX not detected.
 Package pdftexcmds Info: \pdf@primitive is available.
 Package pdftexcmds Info: \pdf@ifprimitive is available.
 Package pdftexcmds Info: \pdfdraftmode found.
 )
-Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 438.
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+41.
 Package grfext Info: Graphics extension search list:
-(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPEG,.JBIG2,.JB2,.eps]
-(grfext)             \AppendGraphicsExtensions on input line 456.
- (/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
-File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
-))
+(grfext)             [.pdf,.png,.jpg,.mps,.jpeg,.jbig2,.jb2,.PDF,.PNG,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 459.
+)
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -137,41 +191,183 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <8> on input line 13.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 13.
+
+Overfull \hbox (16.90128pt too wide) in paragraph at lines 18--22
+\T1/cmr/m/n/10 niu. W przy-padku iden-ty-fikacji niek-tórych pól zbli»onych kol
+orysty-cznie koniecznym
+ []
+
 <pictures/steps/find_water.png, id=1, 584.1825pt x 773.89125pt>
 File: pictures/steps/find_water.png Graphic file (type png)
 <use pictures/steps/find_water.png>
-Package pdftex.def Info: pictures/steps/find_water.png  used on input line 24.
+Package pdftex.def Info: pictures/steps/find_water.png  used on input line 34.
 (pdftex.def)             Requested size: 172.5pt x 228.5203pt.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 27.
+(Font)              <7> on input line 37.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 27.
+(Font)              <5> on input line 37.
 <pictures/steps/find_water_dilate.png, id=2, 582.67688pt x 774.64406pt>
 File: pictures/steps/find_water_dilate.png Graphic file (type png)
 <use pictures/steps/find_water_dilate.png>
-Package pdftex.def Info: pictures/steps/find_water_dilate.png  used on input line 29.
+Package pdftex.def Info: pictures/steps/find_water_dilate.png  used on input li
+ne 39.
 (pdftex.def)             Requested size: 172.5pt x 229.32178pt.
 
-Overfull \hbox (2.22168pt too wide) in paragraph at lines 23--32
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 33--42
 []$[]$ $[]$ 
  []
 
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water.png (PNG copy)> </home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/pictures/steps/find_water_dilate.png (PNG copy)>] [2] (/home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.aux) ) 
+{C:/Users/Vieja/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
+<pictures/fields/pre_blur.png, id=12, 165.9801pt x 161.1621pt>
+File: pictures/fields/pre_blur.png Graphic file (type png)
+<use pictures/fields/pre_blur.png>
+Package pdftex.def Info: pictures/fields/pre_blur.png  used on input line 58.
+(pdftex.def)             Requested size: 172.5pt x 167.50133pt.
+<pictures/fields/after_blur.png, id=14, 165.9801pt x 161.1621pt>
+File: pictures/fields/after_blur.png Graphic file (type png)
+<use pictures/fields/after_blur.png>
+Package pdftex.def Info: pictures/fields/after_blur.png  used on input line 63.
+
+(pdftex.def)             Requested size: 172.5pt x 167.50133pt.
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 57--66
+[]$[]$ $[]$ 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (5.84732pt too wide) in paragraph at lines 71--72
+\T1/cmr/m/n/10 cami. Dokonu-jemy se-lekcji pik-seli na pod-stawie ich warto±ci 
+H, S i V (sprawdzamy
+ []
+
+
+Overfull \hbox (15.52673pt too wide) in paragraph at lines 73--74
+[]\T1/cmr/m/n/10 Przykªadowo, oto przedzi-aªy znor-mal-i-zowanych warto±ci H, S
+, V, które lokalizuj¡
+ []
+
+<pictures/fields/pre_mask.png, id=15, 205.4877pt x 169.1118pt>
+File: pictures/fields/pre_mask.png Graphic file (type png)
+<use pictures/fields/pre_mask.png>
+Package pdftex.def Info: pictures/fields/pre_mask.png  used on input line 80.
+(pdftex.def)             Requested size: 172.5pt x 141.9652pt.
+<pictures/fields/after_mask.png, id=16, 205.4877pt x 169.1118pt>
+File: pictures/fields/after_mask.png Graphic file (type png)
+<use pictures/fields/after_mask.png>
+Package pdftex.def Info: pictures/fields/after_mask.png  used on input line 85.
+
+(pdftex.def)             Requested size: 172.5pt x 141.9652pt.
+<pictures/fields/convex.png, id=17, 205.4877pt x 169.1118pt>
+File: pictures/fields/convex.png Graphic file (type png)
+<use pictures/fields/convex.png>
+Package pdftex.def Info: pictures/fields/convex.png  used on input line 89.
+(pdftex.def)             Requested size: 172.5pt x 141.9652pt.
+<pictures/fields/delete_convex.png, id=18, 205.4877pt x 169.1118pt>
+File: pictures/fields/delete_convex.png Graphic file (type png)
+<use pictures/fields/delete_convex.png>
+Package pdftex.def Info: pictures/fields/delete_convex.png  used on input line 
+94.
+(pdftex.def)             Requested size: 172.5pt x 141.9652pt.
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 79--97
+[]$[]$ $[]$
+ []
+
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 79--97
+[]$ $[]$ 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (4.7109pt too wide) in paragraph at lines 103--105
+\T1/cmr/m/n/10 turów zna-j-dowana jest otoczka wy-pukªa (con-vex hull). Na jej 
+pod-stawie obliczany
+ []
+
+
+Overfull \hbox (5.43661pt too wide) in paragraph at lines 108--109
+[]\T1/cmr/m/n/10 Po odnalezie-niu ª¡k w sposób ana-log-iczny lokali-zowane s¡ l
+asy. Przed wyszuki-
+ []
+
+[2 <./pictures/steps/find_water.png (PNG copy)> <./pictures/steps/find_water_di
+late.png (PNG copy)>]
+<pictures/fields/pre_cut.png, id=23, 178.5069pt x 152.4897pt>
+File: pictures/fields/pre_cut.png Graphic file (type png)
+<use pictures/fields/pre_cut.png>
+Package pdftex.def Info: pictures/fields/pre_cut.png  used on input line 112.
+(pdftex.def)             Requested size: 172.5pt x 147.36337pt.
+<pictures/fields/after_cut.png, id=24, 178.5069pt x 152.4897pt>
+File: pictures/fields/after_cut.png Graphic file (type png)
+<use pictures/fields/after_cut.png>
+Package pdftex.def Info: pictures/fields/after_cut.png  used on input line 117.
+
+(pdftex.def)             Requested size: 172.5pt x 147.36337pt.
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 111--120
+[]$[]$ $[]$ 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<pictures/fields/pre_sat.png, id=25, 176.0979pt x 159.7167pt>
+File: pictures/fields/pre_sat.png Graphic file (type png)
+<use pictures/fields/pre_sat.png>
+Package pdftex.def Info: pictures/fields/pre_sat.png  used on input line 129.
+(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
+<pictures/fields/after_sat.png, id=26, 176.0979pt x 159.7167pt>
+File: pictures/fields/after_sat.png Graphic file (type png)
+<use pictures/fields/after_sat.png>
+Package pdftex.def Info: pictures/fields/after_sat.png  used on input line 134.
+
+(pdftex.def)             Requested size: 172.5pt x 156.45549pt.
+
+Overfull \hbox (2.22168pt too wide) in paragraph at lines 128--137
+[]$[]$ $[]$ 
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[3 <./pictures/fields/pre_blur.png> <./pictures/fields/after_blur.png>]
+[4 <./pictures/fields/pre_mask.png> <./pictures/fields/after_mask.png> <./pictu
+res/fields/convex.png> <./pictures/fields/delete_convex.png> <./pictures/fields
+/pre_cut.png> <./pictures/fields/after_cut.png>] [5 <./pictures/fields/pre_sat.
+png> <./pictures/fields/after_sat.png>] (sprawozdanie.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2830 strings out of 492623
- 43834 string characters out of 6135669
- 106145 words of memory out of 5000000
- 6730 multiletter control sequences out of 15000+600000
- 11755 words of font info for 30 fonts, out of 8000000 for 9000
+ 2995 strings out of 492450
+ 47844 string characters out of 3120004
+ 112594 words of memory out of 3000000
+ 7332 multiletter control sequences out of 15000+200000
+ 11755 words of font info for 30 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
- 42i,8n,40p,636b,442s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm0900.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb>
-Output written on /home/piotr/Documents/studia/rok_III/sem_5/KCK/laby/tmp/Catan-Image-Recognition/sprawozdanie/sprawozdanie.pdf (2 pages, 130608 bytes).
+ 55i,8n,46p,569b,443s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\
+ecrm0900.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour/jknappen/
+ec/dpi600\ecbx1200.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts/pk/ljfour
+/jknappen/ec/dpi600\ecrm1000.pk> <C:\Users\Vieja\AppData\Local\MiKTeX\2.9\fonts
+/pk/ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\Vieja\AppData\Local\MiKTeX
+\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1200.pk> <C:\Users\Vieja\AppData\Lo
+cal\MiKTeX\2.9\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk>
+Output written on sprawozdanie.pdf (5 pages, 3941756 bytes).
 PDF statistics:
- 38 PDF objects out of 1000 (max. 8388607)
- 25 compressed objects within 1 object stream
+ 271 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 61 words of extra memory for PDF output out of 10000 (max. 10000000)
 

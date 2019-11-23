@@ -4,7 +4,7 @@
 \usepackage{subcaption}
 %opening
 \title{Rozpoznawanie stanu rozgrywki w grze planszowej Catan}
-\author{Magdalena Wiechczyńska, \\
+\author{Magdalena Wiechczyńska, 132337\\
 Piotr Tomaszewski, 136821}
 \date{} %Usunięcie daty
 
@@ -13,12 +13,22 @@ Piotr Tomaszewski, 136821}
 \maketitle
 
 \section{Temat i opis rozwiązania problemu}
+	Program na podstawie zdjęcia planszy gry Catan rozpoznaje stan rozgrywki, tzn. ułożenie heksagonalnych pól reprezentujących surowce oraz rozstawienie pionków graczy (gracza czerwonego, niebieskiego i pomarańczowego).
+	
+	W pierwszym kroku stara się wyizolować na zdjęciu samą planszę, aby pominąć w przetwarzaniu elementy nie należące do gry. Następnie po kolei lokalizowane są kolejne typy pól, zaczynając od
+tych najbardziej wyróżniających się. Pola znajdywane są na podstawie selekcji pikseli należących
+do zadanego przedziału wartości HSV. W celu ułatwienia poszukiwania kolejnych, już znalezione pola
+na bieżąco są usuwane ze zdjęcia poddawanego przetwarzaniu. W przypadku identyfikacji niektórych pól zbliżonych kolorystycznie koniecznym jest skalowanie saturacji zdjęcia, dodatkowo zastosowano również filtr medianowy.
 
+	Pionki graczy znajdywane są analogicznie. Miasta są odróżniane od dróg na podstawie podobieństwa
+kształtu do koła (miasta mają okrągłą podstawę).
+
+	
 \section{Działanie programu}
     \subsection{Znajdowanie planszy}
     Na początku program próbuje ustalić położenie planszy i usunąć wszelkie elementy do niej nienależące.
 
-    Wiedząc, że plansza do gry jest zawsze otoczona ramką przedstawiającą wodę, wyszukujemy pikseli, których wartość odcienia (Hue) w przestrzeni HSV należy do odpowiedniego przedziału. Następnie uzyskany obraz poddajemy dylatacji.
+    Wiedząc, że plansza do gry jest zawsze otoczona ramką przedstawiającą wodę, wyszukujemy pikseli, których wartość odcienia (Hue) w przestrzeni HSV należy do odpowiedniego przedziału. Następnie uzyskany obraz poddajemy dylacji.
     \begin{figure}[h]
         \begin{subfigure}[]{.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/steps/find_water.png}
@@ -27,20 +37,109 @@ Piotr Tomaszewski, 136821}
         \end{subfigure}
         \begin{subfigure}[]{0.5\linewidth}
         \includegraphics[width=\linewidth]{pictures/steps/find_water_dilate.png}
-        \subcaption{Wycięta ramka poddana dylatacji}
+        \subcaption{Wycięta ramka poddana dylacji}
         \end{subfigure}
 
         \caption{Znajdowanie ramki.}
         \label{fig:step1}
     \end{figure}
 
-    Na tak przetworzonym obrazie szukamy konturów. Zależy nam na znalezieniu wewnętrznego konturu planszy. Na większości zdjęć jest to drugi kontur pod względem obejmowanego pola powierzchni. Jednak na niekórych fotografiach, zewnętrzny kontur łączy się z otoczeniem, przez co program go nie znajduje. Wówczas to wewnętrzny kontur staje się największy. W celu ustalenia, który kontur jest tym wewnętrznym, sprawdzamy czy drugi pod względem wielkości kontur znajduje się wewnątrz największego.
+    Na tak przetworzonym obrazie szukamy konturów. Zależy nam na znalezieniu wewnętrznego konturu planszy. Na większości zdjęć jest to drugi kontur pod względem obejmowanego pola powierzchni. Jednak na niektórych fotografiach, zewnętrzny kontur łączy się z otoczeniem, przez co program go nie znajduje. Wówczas to wewnętrzny kontur staje się największy. W celu ustalenia, który kontur jest tym wewnętrznym, sprawdzamy, czy drugi pod względem wielkości kontur znajduje się wewnątrz największego.
 
     \subsection{Znajdowanie pionków}
 
     \subsection{Rozpoznawanie pionków}
 
     \subsection{Znajdowanie i rozpoznawanie pól}
+    W pierwszej kolejności stosujemy filtr medianowy z maską 15x15. Sprawi to, że kolory zostaną wygładzone i staną się mniej różnorodne w obrębie poszczególnych pól.
+    
+    \begin{figure}[h]
+        \begin{subfigure}[]{.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/pre_blur.png}
+        \subcaption{Plansza przed nałożeniem filtru}
+
+        \end{subfigure}
+        \begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/after_blur.png}
+        \subcaption{Plansza po nałożeniu filtru}
+        \end{subfigure}
+
+        \caption{Filtr medianowy}
+        \label{fig:step3}
+    \end{figure}
+    
+    Następnie odszukujemy najbardziej wyróżniający się typ pola, łąkę z owcami. Dokonujemy selekcji pikseli na podstawie ich wartości H, S i V (sprawdzamy czy wszystkie wartości znajdują się w akceptowalnych przedziałach. 
+    
+    Przykładowo, oto przedziały znormalizowanych wartości H, S, V, które lokalizują pola z owcami:
+    
+H = [0.15, 0.3], S = [0.4, 1], V = [0.6, 1] 
+	
+	\begin{figure}[h]
+		
+        \begin{subfigure}[]{.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/pre_mask.png}
+        \subcaption{Przetwarzane zdjęcie}
+        \end{subfigure}
+       %
+        \begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/after_mask.png}
+        \subcaption{Wynik selekcji pikseli}
+        \end{subfigure}
+		\begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/convex.png}
+        \subcaption{Otoczka wypukła (convex hull)}
+        \end{subfigure}
+        %
+        \begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/delete_convex.png}
+        \subcaption{Zdjęcie z wyciętymi polami}
+        \end{subfigure}
+        \caption{ Selekcja pikseli na podstawie akceptowalnych przedziałów wartości.}
+        \label{fig:step4}
+    \end{figure}
+	
+	Następnie, w zależności od aktualnie rozważanego typu pola, maska poddawana zostaje dylacji/erozji. Na masce odszukujemy kontury, które następnie sortowane są pod względem pola powierzchni.
+	
+Wykorzystujemy fakt, że liczba poszczególnych typów pól na planszy jest stała (są zawsze cztery łąki, trzy pola z górami itd.). Z tego powodu rozważamy jedynie x pierwszych konturów z posortowanej listy.
+Dla każdego z tych konturów znajdowana jest otoczka wypukła (convex hull). Na jej podstawie obliczany jest centroid i wyrysowywana jest kropka reprezentująca dane pole. 
+
+Dodatkowo, otoczki umieszczane są na nowej masce, która jest następnie poddawana dylacji. Tak utworzona maska wycina z przetwarzanego obrazu pola, które zostały już odnalezione. Ma to ułatwić odnajdywanie następnych typów pól.
+	
+Po odnalezieniu łąk w sposób analogiczny lokalizowane są lasy. Przed wyszukiwaniem gór staramy się dodatkowo wyciąć obramowanie pól, aby zminimalizować możliwość odnalezienia konturów w tych miejscach (ze względu na swoją jasność).
+
+	\begin{figure}[h]
+        \begin{subfigure}[]{.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/pre_cut.png}
+        \subcaption{Zdjęcie po usunięciu lasów}
+
+        \end{subfigure}
+        \begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/after_cut.png}
+        \subcaption{Odcięte obramowanie}
+        \end{subfigure}
+
+        \caption{Odcięcie obramowania planszy}
+        \label{fig:step5}
+    \end{figure}
+	
+Ostatnie pola do identyfikacji są zdecydowanie trudniejsze, ze względu na podobieństwo kolorystyczne, jednak po zastosowaniu 5-krotnego skalowania saturacji obrazu glina wystarczająco wyróżnia się na tle pozostałych pól, aby móc z powodzeniem wykorzystać wyżej przedstawiony algorytm.
+
+	\begin{figure}[h]
+        \begin{subfigure}[]{.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/pre_sat.png}
+        \subcaption{Przed}
+
+        \end{subfigure}
+        \begin{subfigure}[]{0.5\linewidth}
+        \includegraphics[width=\linewidth]{pictures/fields/after_sat.png}
+        \subcaption{Po}
+        \end{subfigure}
+
+        \caption{Skalowanie saturacji, odszukanie gliny staje się łatwiejsze}
+        \label{fig:step6}
+    \end{figure}
+	
+Odróżnienie pustyni od łąk jedynie na podstawie koloru nie jest wystarczającym rozwiązaniem - delikatna różnica w oświetleniu pól może zaważyć o wyniku działania programu. W tym celu wykorzystywany jest fakt, że na pustyni nigdy nie znajdzie się okrągły krążek z cyfrą, z racji tego, że pustynia reprezentuje brak surowca. Z tego powodu za jednym razem znajdujemy wszystkie pięć pozostałych w grze pól (cztery łąki i pustynia) oraz uznajemy z pustynię ten kontur, dla którego pole powierzchni jest największe.
       
 \section{Przedstawienie wyników}
     \subsection{Zdjęcia łatwe}
