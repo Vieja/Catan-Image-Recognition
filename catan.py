@@ -4,9 +4,6 @@ import numpy as np
 
 # Elements of those lists will be displayed in windows
 processed_images = []
-tmp_images = []
-tmp_images2 = []
-tmp_images3 = []
 
 
 def loadImages():
@@ -84,9 +81,7 @@ def findRedPieces(data):
     background2 = thresholdInRange(s, s_new)
     background3 = thresholdInRange(v, v_new)
     background = cv2.bitwise_and(background1, background2, background3)
-    tmp_images2.append(background)
     background = cv2.morphologyEx(background, cv2.MORPH_ERODE, np.ones((3, 3), np.uint8))
-    tmp_images3.append(background)
     return background
 
 
@@ -267,28 +262,19 @@ def main():
     images = loadImages()
     for i, image in enumerate(images):
         print("Processing image {}/{}".format(i + 1, len(images)))
-        processed_images.append(image)
         data = image.copy()
         imageDone = workOnImage(data)
-        tmp_images.append(imageDone)
+        processed_images.append(imageDone)
     print('All images processed')
 
     # Display images
-    for i in range(max(len(processed_images), len(tmp_images), len(tmp_images2))):
+    for i in range(len(processed_images)):
         # Create window
-        cv2.namedWindow('catan', cv2.WINDOW_GUI_NORMAL)
-        cv2.namedWindow('catan2', cv2.WINDOW_GUI_NORMAL)
-        cv2.namedWindow('catan3', cv2.WINDOW_GUI_NORMAL)
-        cv2.namedWindow('catan4', cv2.WINDOW_GUI_NORMAL)
+        cv2.namedWindow('catan_org', cv2.WINDOW_GUI_NORMAL)
+        cv2.namedWindow('catan_processed', cv2.WINDOW_GUI_NORMAL)
         # cv2.resizeWindow('catan', 1920, 1080)
-        if i < len(processed_images):
-            cv2.imshow('catan', processed_images[i])
-        if i < len(tmp_images):
-            cv2.imshow('catan2', tmp_images[i])
-        if i < len(tmp_images2):
-            cv2.imshow('catan3', tmp_images2[i])
-        if i < len(tmp_images3):
-            cv2.imshow('catan4', tmp_images3[i])
+        cv2.imshow('catan_org', images[i])
+        cv2.imshow('catan_processed', processed_images[i])
         cv2.waitKey(0)
     cv2.destroyAllWindows()
 
